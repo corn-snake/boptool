@@ -1,0 +1,5 @@
+{
+    "name": "@boptool/server",
+    "imports": { "@cross/jwt": "jsr:@cross/jwt@^0.4.6" },
+    "exports":"./index.js"
+}
