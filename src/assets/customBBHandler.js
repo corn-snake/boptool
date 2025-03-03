@@ -187,6 +187,26 @@ export const handlers = {
             return `<span style="color: ${escapeCharacters(normaliseColor(context.attributes.default), true) || ''}"><div class="markup_artifact">${context.token.value}</div>${context.content}<div class="markup_artifact">${context.token.closing.value}</div></span>`;
         },
     },
+    colour: {
+        conditions: [
+            {
+                attribute: {
+                    style: {
+                        color: null,
+                    },
+                },
+            },
+        ],
+        quoteType: 'never',
+        bbcode(context) {
+            let colour = getObjectPathValue(context.attributes, 'colour');
+
+            return `[colour=${normaliseColor(colour) || ''}]${context.content}[/colour]`;
+        },
+        html(context) {
+            return `<span style="color: ${escapeCharacters(normaliseColor(context.attributes.default), true) || ''}"><div class="markup_artifact">${context.token.value}</div>${context.content}<div class="markup_artifact">${context.token.closing.value}</div></span>`;
+        },
+    },
     // END_COMMAND
 
     // START_COMMAND: Lists
@@ -495,6 +515,26 @@ export const handlers = {
         allowsEmpty: true,
         bbcode: '[center]{0}[/center]',
         html: '<div style="text-align: center"><div class="markup_artifact">[center]</div>{0}<div class="markup_artifact">[/center]</div></div>',
+    },
+    centre: {
+        conditions: [
+            {
+                attribute: {
+                    style: {
+                        textAlign: [
+                            'center',
+                            '-webkit-center',
+                            '-moz-center',
+                            '-khtml-center',
+                        ],
+                    },
+                },
+            },
+        ],
+        isInline: false,
+        allowsEmpty: true,
+        bbcode: '[centre]{0}[/centre]',
+        html: '<div style="text-align: center"><div class="markup_artifact">[centre]</div>{0}<div class="markup_artifact">[/centre]</div></div>',
     },
     // END_COMMAND
 
