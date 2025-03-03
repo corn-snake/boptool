@@ -58,7 +58,7 @@ let isAuth = ref(await(async()=>{
 const logout = ()=>isAuth.value = false;
 const login = ()=>isAuth.value = true;
 
-export async function tryAuth(usr,pwd,callback){
+async function tryAuth(usr,pwd,callback){
     const uHash = await sha512(usr), pHash = await sha512(pwd), rn = Math.floor(Math.random() * 2048), d = Date.now();
     if (!localStorage.getItem("stamp")) {
         localStorage.setItem("stamp",await sha512(`${rn}+${d}+${usr}`));
@@ -80,7 +80,7 @@ export async function tryAuth(usr,pwd,callback){
     });
 }
 
-export async function killLogin(callback){
+async function killLogin(callback){
     fetch(`${location.protocol}//${location.hostname}:800/invalidate`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
@@ -95,4 +95,4 @@ export async function killLogin(callback){
     });
 }
 
-export {isAuth,boppeList,usr,sha512};
+export {isAuth, tryAuth, killLogin, boppeList, usr, sha512};
