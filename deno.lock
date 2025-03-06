@@ -519,7 +519,12 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@sys/driver-vite^0.0.63@*"
+      "jsr:@sys/driver-vite@^0.0.130",
+      "npm:bulletin-board-code@^1.0.2",
+      "npm:jsonwebtoken@^9.0.2",
+      "npm:lodash@^4.17.21",
+      "npm:vue-router@^4.5.0",
+      "npm:vue@^3.4.21"
     ],
     "packageJson": {
       "dependencies": [
