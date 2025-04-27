@@ -229,7 +229,7 @@
 	a.current {
 		pointer-events: none;
 	}
-	@media (prefers-color-scheme: dark) {
+	/*@media (prefers-color-scheme: dark) {
 		.burntivory {
 			background-color: #1b263c;
 		}
@@ -251,7 +251,7 @@
 		.linkcolor * {
 			color: #3982bf;
 		}
-	}
+	}*/
 </style>
 <style scoped>
 	.main.hide {

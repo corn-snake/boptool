@@ -25,7 +25,7 @@ const bopData = reactive({
     latestTurn: -1
 });
 
-const lt = ref(true);
+const lt = ref(window.matchMedia('(prefers-color-scheme: light)').matches ?? false); // jic *something* happens
 
 const players = ref([]);
 
