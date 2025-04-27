@@ -1,10 +1,9 @@
 {
     "tasks": {
-        "dev": "deno run -A jsr:@sys/driver-vite/dev --in=./index.html",
+        "dev": "deno run -A npm:vite",
         "sdev": "cd serve && deno run --watch --allow-net index.js"
     },
     "imports": {
-        "@sys/driver-vite": "jsr:@sys/driver-vite@^0.0.130",
         "bulletin-board-code": "npm:bulletin-board-code@^1.0.2",
         "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
         "lodash": "npm:lodash@^4.17.21",
