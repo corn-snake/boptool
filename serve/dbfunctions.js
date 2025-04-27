@@ -1,4 +1,4 @@
-import { sb } from "./bopfunctions.js";
+import sb from "./sb/sb.js";
 
 async function sha512(str) {
   return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str)).then(buf => {

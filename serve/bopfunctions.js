@@ -1,7 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { custom403, small403, custom404, mapObject } from './miscellanea.js';
-
-const sb = createClient("https://zyivrberayexahckbthx.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5aXZyYmVyYXlleGFoY2tidGh4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcxNDQwNjM3MiwiZXhwIjoyMDI5OTgyMzcyfQ.7tkMRZH2L2HA9doWkz-iR0zfcEhBwO9by0Ct1ChRZWs");
+import sb from './sb/sb.js';
 
 function reduceTurns(bopArray) {
     const instanceMap = new Map();
@@ -128,4 +126,4 @@ select uname from bop_userdata.ud
   (select unnest(players) from bop_bopdata.turns where bid=bn and number=tn )
 */
 
-export { sb, reduceBoPs, fetchBops, fetchBoPStuff, fetchTurnPlayers };
+export { reduceBoPs, fetchBops, fetchBoPStuff, fetchTurnPlayers };
