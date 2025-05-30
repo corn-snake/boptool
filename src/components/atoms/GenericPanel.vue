@@ -1,35 +1,40 @@
 <script setup>
-	import { bopData, lt } from "../../stores/bopstore";
+	import { bopData, lt, players } from "../../stores/bopstore";
 	import { fileget, finishedFirstFetch, lastIsProcessing, playerNumber } from "../../assets/loadTrack";
-	import { watch, ref, computed } from "vue";
+	import { watch, ref, computed, reactive } from "vue";
 	import RenderPanel from "./RenderPanel.vue";
 	import RenderEditable from "./RenderEditable.vue";
 	import HistoryLine from "./HistoryLine.vue";
 	import { useRoute } from "vue-router";
 
-	const props = defineProps(["type", "turn", "d", "strip", "doubleBind"]), route = useRoute();;
+	const props = defineProps(["type", "turn", "d", "strip", "doubleBind"]), route = useRoute();
 	const panelGet = ref("[i]loading...[/i]"),
 		rw = computed(()=>route.params.claim != undefined && route.params.turn == undefined && !lastIsProcessing.value),
 		selectedTurn = ref(route.params.turn || bopData.latestTurn || props.turn || -1),
-		shy = computed(()=>!props.d);
+		selectedBoP = computed(()=>route.params.id),
+		shy = computed(()=>!props.d),
+		trueClaim = computed(()=>route.params.claim ?? 0);
+	const fullW = reactive({
+		c: trueClaim.value,
+		b: selectedBoP.value,
+		s: selectedTurn,
+		p: playerNumber.value
+	});
 	defineEmits(["turn"]);
 	watch(
 		() => finishedFirstFetch.value,
 		(newFlag, oldFlag) => {
 			if (props.doubleBind === true && playerNumber.value==-1) return;
-			fileget(route.params.id, route.params.turn || bopData.latestTurn, route.params.claim, props.type).then((t) => panelGet.value = t);
+			fileget(route.params.id, route.params.turn || bopData.latestTurn, trueClaim.value, props.type).then((t) => panelGet.value = t);
 			selectedTurn.value = bopData.latestTurn;
-			watch(() => selectedTurn.value, (nv, ov) => {
-				if (finishedFirstFetch.value === true) fileget(route.params.id, selectedTurn.value, route.params.claim, props.type).then((t) => panelGet.value = t)
-			});
-		});
-	watch(
-			() => bopData.latestTurn,
-			(newParams, oldParams) => {
-				// slight hack. i'm probably too locked into this to notice where/why the thing's not being passed. oh well
+			watch(()=>selectedBoP.value, (n,o)=>{
 				selectedTurn.value = bopData.latestTurn;
 			});
-	watch(() => playerNumber.value, (nv, ov) => props.doubleBind === true ? fileget(route.params.id, selectedTurn.value, route.params.claim, props.type).then((t) => panelGet.value = t) : false);
+			watch(() => fullW, (nv, ov) => {
+				if (finishedFirstFetch.value === true) fileget(route.params.id, selectedTurn.value, trueClaim.value, props.type).then((t) => panelGet.value = t);
+			},
+			{deep: true});
+		});
 </script>
 
 <template>

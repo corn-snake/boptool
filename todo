@@ -1,0 +1,34 @@
+focus: B[1-2], F[1]
+
+Bugs:
+    [1] host card view (Noble.vue > CountryCollection.vue > GenericPanel.vue) only fetches files when selecting another game
+        [1.1] player selection is entirely unresponsive
+        [1.2] once game and turn are selected, view doesn't auto-select (or at least prompt to select) a player
+            - note: the combination of those two effectively means bophost would need to select a game _and then_ select another. which is needless to say entirely *wrong*
+    [2] hosts don't see fetch files in their view; it does fetch them correctly though... at least i _think_ it does
+        - note: it does send the request and recieve appropriate files. yay.
+        - note 2: logging out from host acc & then logging into player acc without reloading page may also fuck up player view (MainFrame.vue > CountryCollection.vue > GenericPanel.vue) into not reflecting fetches. probably snafu'd variables and cache'd views, though who knows. see if it solves itself after main bug's done :iamamoron:
+    [3] hosts fetch in new bop out of order: 3 files, then bop info, then boppeople list
+    [4] hosts fetch boppeople twice. possibly watcher in particular view being weird (so i may have written the effect twice or made it depend on two things somehow. oops)
+
+Features:
+    [1] make editor usable
+        [1.1] Actually Implement Saving The Damn Files lol
+        [1.2] make editor/result view single element. somehow
+    [2] admin panel; that is, account creation, so i don't have to do three hashes and a half from "memory"
+    [3] reduced-motion accessibility
+    [4] should probably add some haptics to the button so user knows request was sent out. perchance some ref that gets mutated on-click and then back once the login fetch is done
+        [4.1] and also to bop fetchment. again probably ref flags or a whole reactive
+
+Delayed until further notice:
+    [] single-port server
+        -- running on :800 & :80. once front (everything inside src) is built, will have to create extra functions for serving those assets (whatever js+css files vite generates & the main index.js ofc) and the default 404/403
+
+Fixed/implemented:
+    - logins work
+    - player can read cards per bop per turn
+    - database access keys are no longer public info ha ha
+    - dark/lightmode
+    - sidebar that _does_ go away
+    - "real-time" (see feature req. 1) bbcode edition
+    - bop change no longer auto-defaults fetch to privilege lvl 3 (host)

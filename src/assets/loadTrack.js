@@ -74,4 +74,4 @@ async function fileget(bid, turn, claim=0, type) {
 
 const finishedFirstFetch = ref(false);
 
-export {load, makeLoad, unLoad, boppise, fileget, mapObject, finishedFirstFetch, lastIsProcessing, getPlayers, list, selectedCountry, playerNumber};
+export {load, makeLoad, unLoad, boppise, fileget, mapObject, finishedFirstFetch, lastIsProcessing, getPlayers, list, players, selectedCountry, playerNumber};

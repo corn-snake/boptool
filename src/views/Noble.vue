@@ -11,6 +11,10 @@
 
 	const rw = computed(()=>(route.params.turn == bopData.latestTurn && lastIsProcessing.value)||route.params.turn==undefined),
 		selectedTurn = ref(-1);
+	
+	const finalL = reactive({
+		s: selectedTurn.value
+	});
 
 	boppise(route.params.id).then((r) => {
 		compBop.history = JSON.parse(r.hist);
