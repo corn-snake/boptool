@@ -36,17 +36,7 @@ async function getPlayers(bid, turn, claim=1) {
     }).then(r => r.json());
 }
 
-async function fileget(bid, turn, claim=0, type) {
-    const uname = localStorage.getItem('uname'),
-        proof = await sha512(`${uname}+${localStorage.getItem('stamp')}`);
-    return await fetch(`${location.protocol}//${location.hostname}:800/file`, {
-        "Access-Control-Allow-Origin": '*',
-        method: "POST",
-        body: `["${uname}","${await proof}",${bid},${turn},${claim || 0}, "${type}"${claim > 0 ? ', ' + playerNumber.value : ""}]`,
-    }).then(r => r.text());
-}
-
-async function fileget_new(bid, turn, claim=0, player, type) {
+async function fileget(bid, turn, claim=0, player, type) {
     const uname = localStorage.getItem('uname'),
         proof = await sha512(`${uname}+${localStorage.getItem('stamp')}`);
     return await fetch(`${location.protocol}//${location.hostname}:800/file`, {
@@ -58,4 +48,4 @@ async function fileget_new(bid, turn, claim=0, player, type) {
 
 const finishedFirstFetch = ref(false);
 
-export {load, makeLoad, unLoad, boppise, fileget, fileget_new, finishedFirstFetch, lastIsProcessing, getPlayers, list, players, selectedCountry, playerNumber};
+export {load, makeLoad, unLoad, boppise, fileget, finishedFirstFetch, lastIsProcessing, getPlayers, list, players, selectedCountry, playerNumber};

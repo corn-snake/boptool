@@ -1,6 +1,6 @@
 <script setup>
 	import { bopData, lt } from "../../stores/bopstore";
-	import { fileget_new, lastIsProcessing } from "../../lib/loadTrack";
+	import { fileget, lastIsProcessing } from "../../lib/loadTrack";
 	import { watch, ref, computed, reactive } from "vue";
 	import RenderPanel from "./RenderPanel.vue";
 	import RenderEditable from "./RenderEditable.vue";
@@ -11,7 +11,7 @@
 	const localTurn = ref(-1);
 	const panelGet = ref("[i]loading...[/i]"),
 		rw = computed(()=>route.params.claim != undefined && route.params.turn == undefined && !lastIsProcessing.value),
-		refresh = ()=>fileget_new(route.params.id, props.strip === true ? bopData.turn : localTurn.value, bopData.claim, bopData.player, props.type).then((t) => panelGet.value = t);
+		refresh = ()=>fileget(route.params.id, props.strip === true ? bopData.turn : localTurn.value, bopData.claim, bopData.player, props.type).then((t) => panelGet.value = t);
 	defineEmits(["turn"]);
 	watch(
         bopData,
