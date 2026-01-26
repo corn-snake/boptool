@@ -12,6 +12,7 @@
 	];*/
 	// ignore that until they fix their shit
 	const props = defineProps(["file"]);
+	const shy = ref(false);
 	const toRender=ref("[i]loading...[/i]");
 	watch(()=>props.file, (nv,ov)=>toRender.value = props.file);
 
@@ -22,6 +23,7 @@
 		<bbob-bbcode container="div" :plugins="plugins">
 			{{ toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender }}
 		</bbob-bbcode>
-	</div-->
-	<span v-html='finalParser.toHTML(toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender )'> </span>
+	</div>
+	<slide-up-down :active="!shy" :duration="400" tag="article" v-html='finalParser.toHTML(toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender )'/-->
+	<article v-html='finalParser.toHTML(toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender )'></article>
 </template>

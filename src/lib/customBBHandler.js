@@ -2,7 +2,7 @@ import _ from "lodash";
 const getObjectPathValue = _.get;
 import { normaliseColor, escapeCharacters, stripQuotes, escapeUriScheme } from "./bbc_utils/index.ts";
 const html_grabber = (ctx, stat, spec="attributes.default") => {
-    let f = _.get(ctx, spec, '');
+    const f = _.get(ctx, spec, '');
     return `<span style="${stat}: ${f}"><div class="markup_artifact">${ctx.token.value}</div>${ctx.content}<div class="markup_artifact">${ctx.token.closing.value}</div></span>`;
 };
 export const handlers = {
@@ -159,7 +159,7 @@ export const handlers = {
             },
         ],
         bbcode(context) {
-            let fontSize = getObjectPathValue(context.attributes, 'size');
+            const fontSize = getObjectPathValue(context.attributes, 'size');
             return `[size=${fontSize || ''}]${context.content}[/size]`;
         },
         html: (ctx) => html_grabber(ctx, "font-size")
@@ -179,7 +179,7 @@ export const handlers = {
         ],
         quoteType: 'never',
         bbcode(context) {
-            let color = getObjectPathValue(context.attributes, 'color');
+            const color = getObjectPathValue(context.attributes, 'color');
 
             return `[color=${normaliseColor(color) || ''}]${context.content}[/color]`;
         },
@@ -199,7 +199,7 @@ export const handlers = {
         ],
         quoteType: 'never',
         bbcode(context) {
-            let colour = getObjectPathValue(context.attributes, 'colour');
+            const colour = getObjectPathValue(context.attributes, 'colour');
 
             return `[colour=${normaliseColor(colour) || ''}]${context.content}[/colour]`;
         },

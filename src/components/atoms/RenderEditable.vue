@@ -1,20 +1,20 @@
 <script setup>
-    import { ref, watch } from 'vue';
+    import { ref, watch, computed, reactive } from 'vue';
     const props = defineProps(["file"]);
-	const toRender=ref("[i]loading...[/i]");
+    const shy = reactive({
+        editor: false,
+        preview: true
+    });
+	const toRender=ref("[i]loading...[/i]"),
+	    rendered = computed(()=>bbcparser.toHTML(toRender.value === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender.value));
 	watch(()=>props.file, (nv,ov)=>toRender.value = props.file);
-	import { bbcparser } from '../../stores/bopstore';
-
-    const insertCaret = position=>{
-        toRender.value = toRender.split(0,position) + "[caret][/caret]" + toRender.split(position);
-    }
-
+	import { bbcparser } from '../../stores/bopstore';;
 </script>
 <template>
     <div>
-        <span contenteditable="true" @input.native="e=>toRender = e.target.innerText" class="editorArea">[i]loading...[/i]</span><br>
-        <span v-html='bbcparser.toHTML(toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender)'
-            @click.native="e=>console.log()"></span>
+        <!--slide-up-down :active="!shy.editor" :duration="400" tag="article" contenteditable="true" @input.native="e => toRender = e.target.textContent" class="editorArea"/><br>
+        <slide-up-down :active="shy.preview" :duration="400" tag="article"  /-->
+        <article v-html='rendered'></article>
     </div>
 </template>
 <style scoped>
@@ -65,7 +65,7 @@
         display: inline;
         font-size: small;
     }
-    
+
     .faketable {
         display: table;
         & > br:first-child {

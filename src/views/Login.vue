@@ -1,17 +1,23 @@
 <script setup>
 	import { ref, reactive } from "vue";
-	import { tryAuth } from "../stores/authStore.js";
+	import { tryAuth, lastLoginAttemptStatus } from "../stores/authStore.js";
 	const ralive = reactive({
 			user: false,
 			pwd: false,
 			spwd: false,
 		}),
+	    whatWrong = ref(-1),
+		wrong = (n)=>whatWrong.value = n,
 		buttonAlive = ref(false),
+		buttonBreathing = ref(false),
 		rvals = reactive({
 			usr: "",
 			pwd: "",
 		}),
-		buttonCheck = () => (buttonAlive.value = ralive.pwd && ralive.user),
+		buttonCheck = () => {
+		    buttonAlive.value = ralive.pwd && ralive.user;
+			wrong(-1);
+		},
 		checkUser = (v) => {
 			v.value.length > 0 ? (ralive.user = true) : (ralive.user = false);
 			buttonCheck();
@@ -23,11 +29,13 @@
 		checkPwdSimple = (v) => {
 			v.value.length > 0 ? (ralive.spwd = true) : (ralive.spwd = false);
 			buttonCheck();
-		};
+		},
+		breathe=()=>buttonBreathing.value = true,
+		gasp = ()=>buttonBreathing.value = false;
 </script>
 <template>
 	<form class="login-form">
-		<div :class="['input-wrap', { on: ralive.user }]">
+		<div :class="['input-wrap', whatWrong === 1 ? 'wrong' : '', { on: ralive.user }]">
 			<label for="username">Username</label
 			><input
 				type="text"
@@ -38,7 +46,7 @@
 				v-model="rvals.usr"
 			/>
 		</div>
-		<div :class="['input-wrap', { on: ralive.spwd }]">
+		<div :class="['input-wrap', whatWrong >= 1 ? 'wrong' : '', { on: ralive.spwd }]">
 			<label for="password">Password</label
 			><input
 				type="password"
@@ -56,16 +64,22 @@
 		</div>
 		<button
 			id="submitlogin"
-			:class="['submitter', 'inp-noout', { ded: !buttonAlive }]"
+			:class="['submitter', 'inp-noout', buttonAlive ? '' : 'ded', buttonBreathing ? 'breathing' : '']"
 			@click="
 				(e) => {
 					e.preventDefault();
 					$emit('loading');
-					tryAuth(rvals.usr, rvals.pwd, () => $emit('loaded'));
+					breathe();
+					tryAuth(rvals.usr, rvals.pwd, ()=>$emit('loaded'), () => {
+					    gasp();
+						$emit('loaded');
+						if (lastLoginAttemptStatus == 404) wrong(1);
+						if (lastLoginAttemptStatus == 403) wrong(2);
+					})
 				}
 			"
 		>
-			Sign In
+			{{ buttonBreathing ? "Wait..." : "Sign In" }}
 		</button>
 	</form>
 </template>
@@ -110,6 +124,30 @@
 		font-size: 0.7em;
 		transform: translateY(-70%);
 	}
+	.wrong {
+        animation-name: shake-input;
+        animation-duration: 1.4s;
+        animation-timing-function: (4, jump-both);
+    }
+    @keyframes shake-input {
+        0% {
+            color: #c55;
+            transform: translateX(0px)
+        }
+        25% {
+            transform: translateX(-10px)
+        }
+        50% {
+            transform: translateX(10px)
+        }
+        75% {
+            transform: translateX(-10px)
+        }
+        100% {
+            color: #c55;
+            transform: translateX(0px)
+        }
+    }
 	@media (max-width: calc(2rem + 24px + 40rem + 8rem)) {
 		form {
 			flex-direction: column;

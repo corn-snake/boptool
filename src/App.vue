@@ -1,24 +1,16 @@
 <script setup>
 	import Sidebar from "./components/layout/Sidebar.vue";
 	import Heady from "./components/layout/Heady.vue";
-	import { ref } from "vue";
-	import { load, makeLoad, unLoad } from "./assets/loadTrack.js";
+	import { ref, onMounted, onUnmounted } from "vue";
+	import { load, makeLoad, unLoad } from "./lib/loadTrack.js";
 	import { lt } from "./stores/bopstore.js";
-	const overrides =
-		parseInt(
-			getComputedStyle(document.body)
-				.getPropertyValue("width")
-				.substring(
-					0,
-					getComputedStyle(document.body).getPropertyValue("width").length - 2
-				)
-		) < 501;
-	const showSide = ref(overrides ? false : true),
+	const overrides = ref(document.getElementById("app").offsetWidth < 601),
+	    showSide = ref(document.getElementById("app").offsetWidth > 501),
 		logged = ref(false),
 		pwdDialog = ref(false);
 	const showUnshow = () => (showSide.value = !showSide.value),
 		pureHide = () => {
-			if (overrides) showSide.value = false;
+			if (overrides.value) showSide.value = false;
 			if (pwdDialog.value) pwdDialogClose();
 		},
 		duskDawn = () => (lt.value = !lt.value),
@@ -27,6 +19,13 @@
 	if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
 		lt.value = false;
 	}
+
+	const winChange = ()=>{
+	    overrides.value = document.getElementById("app").offsetWidth < 601;
+		showSide.value = document.getElementById("app").offsetWidth > 501;
+	};
+	onMounted(()=>window.addEventListener('resize', winChange));
+	onUnmounted(()=>window.removeEventListener('resize', winChange));
 </script>
 
 <template>
@@ -51,8 +50,8 @@
 		]"
 		@click="pureHide"
 	>
-		<Heady @hideShow="showUnshow" @loading="makeLoad" @loaded="unLoad" />
-		<router-view></router-view>
+		<Heady @hideShow="showUnshow" @loading="makeLoad" @loaded="unLoad" :small="showSide" />
+		<router-view class="disp"></router-view>
 	</main>
 	<dialog id="pwdReset" v-if="!logged" :open="pwdDialog">
 		<form>
@@ -80,8 +79,8 @@
 
 <style scoped>
 	.main {
-		min-height: calc(100dvh - 12px);
-		max-height: calc(100% - 12px);
+		min-height: calc(100dvh - 12px - var(--magicmissile));
+		max-height: calc(100dvh - 12px - var(--magicmissile));
 		overflow-y: scroll;
 	}
 </style>
@@ -169,9 +168,25 @@
 	.submitter {
 		background-color: #815127;
 	}
+	.submitter.breathing {
+	    font-style: italic;
+	}
+	:not(.dt) .submitter.breathing {
+		background-color: #444;
+		color: white;
+	}
+	.dt .submitter.breathing {
+	    font-style: italic;
+		background-color: #ccf;
+		color: black;
+	}
 	:not(.dt) .submitter,
 	.dt .submitter {
 		color: #eae7e0;
+	}
+	.dt .submitter {
+    	background-color: transparent;
+    	border-color: #eae7e0;
 	}
 	:not(.dt) * {
 		color: rgba(0, 0, 0, 0.87);
@@ -223,9 +238,7 @@
 		pointer-events: none;
 		filter: saturate(25%);
 	}
-	button.mid {
-		/*filter: ;*/
-	}
+	/*  button.mid { } */
 	a.current {
 		pointer-events: none;
 	}
@@ -265,8 +278,9 @@
 		transition: var(--trbg), filter 0.3s cubic-bezier(0.25, 0.8, 0.5, 1),
 			margin-left 0.3s cubic-bezier(0.25, 0.8, 0.5, 1),
 			width 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+		padding-top: var(--magicmissile);
 	}
-	@media (min-width: 501px) {
+	@media (min-width: 601px) {
 		.main {
 			position: absolute;
 			left: 0;

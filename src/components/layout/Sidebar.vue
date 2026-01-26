@@ -3,7 +3,7 @@
 	import ThemeToggle from "./../atoms/ThemeToggle.vue";
 	import { RouterLink } from "vue-router";
 	const props = defineProps(["logged", "lt"]);
-	import { finishedFirstFetch } from "../../assets/loadTrack";
+	import { finishedFirstFetch } from "../../lib/loadTrack";
 </script>
 <template>
 	<div class="sidebar fullwidth rel burntivory flex columnar">
@@ -103,14 +103,16 @@
 	.changer i {
 		text-decoration: underline dashed;
 	}
+	@media (orientation: landscape) {
 
-	@media (max-width: 500px) {
+	}
+	@media (max-width: 600px) {
 		.sidebar {
 			max-width: 70%;
 			position: absolute;
 		}
 	}
-	@media (min-width: 501px) {
+	@media (min-width: 601px) {
 		.sidebar {
 			max-width: 18.7%;
 		}

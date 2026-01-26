@@ -1,4 +1,0 @@
-{
-    "name": "@boptool/server",
-    "exports":"./index.js"
-}

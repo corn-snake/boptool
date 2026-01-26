@@ -1,7 +1,14 @@
 <script setup>
 	import { boppeList } from "../../stores/authStore.js";
-	import { bopData } from "../../stores/bopstore.js";
+	import { bopData, compBop } from "../../stores/bopstore.js";
 	import { RouterLink } from "vue-router";
+
+	const bopReset = ( bn=-1, cn = 0) =>{
+        bopData.player = -1;
+        bopData.bop = bn;
+        bopData.turn = -1;
+        bopData.claim = cn;
+	}
 </script>
 
 <template>
@@ -11,13 +18,7 @@
 			class="bop"
 			v-for="item in boppeList.hosts"
 			:to="`/bop/bigMod/${item[0]}`"
-			@click.native="
-				() => {
-					bopData.number = item[0];
-					bopData.turn = item[3];
-					bopData.latestTurn = item[3];
-				}
-			"
+			@click.native="() => bopReset(item[0],2)"
 		>
 			<span>
 				{{ item[1] }}
@@ -30,13 +31,7 @@
 			class="bop"
 			v-for="item in boppeList.chost"
 			:to="`/bop/mod/${item[0]}`"
-			@click.native="
-				() => {
-					bopData.number = item[0];
-					bopData.turn = item[3];
-					bopData.latestTurn = item[3];
-				}
-			"
+			@click.native="() => bopReset(item[0],1)"
 		>
 			<span>
 				{{ item[1] }}
@@ -49,13 +44,7 @@
 			class="bop"
 			v-for="item in boppeList.plays"
 			:to="`/bop/${item[0]}`"
-			@click.native="
-				() => {
-					bopData.number = item[0];
-					bopData.turn = item[3];
-					bopData.latestTurn = item[3];
-				}
-			"
+			@click.native="() => bopReset(item[0])"
 		>
 			<span>
 				{{ item[1] }}
@@ -64,7 +53,7 @@
 	</div>
 </template>
 
-<style>
+<style scoped>
 	.bopcontainer {
 		padding: 1em;
 	}
@@ -98,6 +87,12 @@
 	}
 	.dt .bop::before {
 		background-color: #85edff;
+	}
+	.title {
+	    font-weight: 450;
+	}
+	.dt .subtitle {
+	    color: rgba(0.8,0.8,1,0.6)
 	}
 	@media (prefers-color-scheme: dark) {
 		.bop::before {

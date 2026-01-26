@@ -1,15 +1,4 @@
-focus: B[1-2], F[1]
-
-Bugs:
-    [1] host card view (Noble.vue > CountryCollection.vue > GenericPanel.vue) only fetches files when selecting another game
-        [1.1] player selection is entirely unresponsive
-        [1.2] once game and turn are selected, view doesn't auto-select (or at least prompt to select) a player
-            - note: the combination of those two effectively means bophost would need to select a game _and then_ select another. which is needless to say entirely *wrong*
-    [2] hosts don't see fetch files in their view; it does fetch them correctly though... at least i _think_ it does
-        - note: it does send the request and recieve appropriate files. yay.
-        - note 2: logging out from host acc & then logging into player acc without reloading page may also fuck up player view (MainFrame.vue > CountryCollection.vue > GenericPanel.vue) into not reflecting fetches. probably snafu'd variables and cache'd views, though who knows. see if it solves itself after main bug's done :iamamoron:
-    [3] hosts fetch in new bop out of order: 3 files, then bop info, then boppeople list
-    [4] hosts fetch boppeople twice. possibly watcher in particular view being weird (so i may have written the effect twice or made it depend on two things somehow. oops)
+focus: F[1], B[1]
 
 Features:
     [1] make editor usable
@@ -19,6 +8,17 @@ Features:
     [3] reduced-motion accessibility
     [4] should probably add some haptics to the button so user knows request was sent out. perchance some ref that gets mutated on-click and then back once the login fetch is done
         [4.1] and also to bop fetchment. again probably ref flags or a whole reactive
+    [5] notes
+    [6] small screen queries
+    [7] in-code comments (// token will stop stuff in front of it from displaying, /* */ tkn pairs constitute block-level comments)
+
+FRs:
+    [1] preview
+        [1.1] markdown/bbcode switch
+    [2] all small
+        [2.1] any small
+    [3] thing to make sure edit conflicts show up
+    [4]
 
 Delayed until further notice:
     [] single-port server
@@ -30,5 +30,9 @@ Fixed/implemented:
     - database access keys are no longer public info ha ha
     - dark/lightmode
     - sidebar that _does_ go away
-    - "real-time" (see feature req. 1) bbcode edition
     - bop change no longer auto-defaults fetch to privilege lvl 3 (host)
+    - hosts fetch bop, then boppeople
+    - all views fetch files as necessary
+    - data is stored and used appropriately (ideally you could make server check latest turn priv etc but i'm working on tight resources here)
+    - loading/select haptics
+    - slides up-down

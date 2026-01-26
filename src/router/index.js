@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router"
 import Login from '../views/Login.vue'
 import Landing from "../views/Landing.vue";
 import Noble from "../views/Noble.vue";
-import Micromanager from "../views/Micromanager.vue";
+//import Micromanager from "../views/Micromanager.vue";
 import MainFrame from "../views/MainFrame.vue";
 
 const routes = [

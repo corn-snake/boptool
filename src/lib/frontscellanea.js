@@ -1,27 +1,7 @@
-function custom403(bd){
-    return new Response(bd,{
-        status:403,
-        headers: {
-            "Access-Control-Allow-Origin": '*'
-        }
-    });
-}
-const small403 = () => custom403("failed to verify.");
-
-function custom404(bd) {
-    return new Response(bd,{
-        status:404,
-        headers: {
-            "Access-Control-Allow-Origin": '*'
-        }
-    });
-}
-const small404 = ()=>custom404("wrong turn.");
-
 function mapObject(_m=new Map()||[]){
     const _a = Array.isArray(_m) ? new Map(_m) : _m;
     const _p = new Proxy(_a,{
-        get(target,name,receiver){
+        get(target,name,_receiver){
             switch(name){
                 case "keys":
                     return [...target.keys()];
@@ -44,9 +24,9 @@ function mapObject(_m=new Map()||[]){
                     return target.get(name);
             }
         },
-        set:(target,name,value,receiver)=>target.set(name,value)
+        set:(target,name,value,_receiver)=>target.set(name,value)
     });
     return _p;
 }
 
-export { custom403, small403, custom404, small404, mapObject };
+export {mapObject}
