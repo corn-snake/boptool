@@ -187,6 +187,8 @@
 	.dt .submitter {
     	background-color: transparent;
     	border-color: #eae7e0;
+        border-width: 1px;
+        border-style: solid;
 	}
 	:not(.dt) * {
 		color: rgba(0, 0, 0, 0.87);

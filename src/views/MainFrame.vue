@@ -1,6 +1,6 @@
 <script setup>
 	import { watch, reactive, ref } from "vue";
-	import { boppise, finishedFirstFetch, lastIsProcessing } from "../lib/loadTrack.js";
+	import { boppise, finishedFirstFetch } from "../lib/loadTrack.js";
 	import { compBop, bopData } from "../stores/bopstore.js";
 	import { boppeList } from "../stores/authStore.js";
 	import { useRoute } from "vue-router";
@@ -13,7 +13,7 @@
         bopData.bop = parseInt(route.params.id);
         compBop.title = boppeList.names[bopData.bop];
 		bopData.turn = Object.keys(compBop.history).at(-1);
-		lastIsProcessing.value = r.lastIsProcessing;
+		bopData.lastIsProcessing = r.lastIsProcessing;
 		finishedFirstFetch.value = true;
 		return r;
 	});
@@ -25,7 +25,7 @@
 				compBop.history = JSON.parse(r.hist);
 				bopData.bop = parseInt(route.params.id);
 				compBop.title = boppeList.names[bopData.bop];
-				lastIsProcessing.value = r.lastIsProcessing;
+				bopData.lastIsProcessing = r.lastIsProcessing;
 				bopData.turn = Object.keys(compBop.history).at(-1);
 				return r;
 			});

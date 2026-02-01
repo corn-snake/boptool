@@ -52,7 +52,7 @@
 	header {
 	    position: fixed;
 		height: var(--magicmissile);
-		padding: 0 1em;
+		padding: 0 1rem;
 		margin-bottom: 12px;
 		display: flex;
 		flex-direction: row;
@@ -61,20 +61,20 @@
 		top: 0;
 	}
 	.userpic {
-		max-height: calc(var(--magicmissile) - 1em);
+		max-height: calc(var(--magicmissile) - 1rem);
 		object-fit: contain;
-		margin-right: 1.2em;
+		margin-right: 1.2rem;
 	}
 	button,
 	button:hover {
-		margin-left: 0.2em;
+		margin-left: 0.2rem;
 		border: none;
 	}
 	.menuButtonWrap + .user {
 	    margin-left: auto;
 	}
 	.user {
-		margin-right: 3em;
+		margin-right: 3rem;
 		display: flex;
 		align-items: center;
 	}
@@ -86,23 +86,23 @@
 	}
 	@media (max-width: 600px) {
     	header {
-            width: calc(100% - 2em);
+            width: calc(100% - 2rem);
         }
 	}
 	@media (min-width: 601px) {
 	    header {
-			width: calc(81.3% - 2em);
+			width: calc(81.3% - 2rem);
 			transition: var(--trcolor), var(--trbg), width 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 		}
 	    .main.left header {
-			width: calc(100% - 2em);
+			width: calc(100% - 2rem);
   		}
 	}
 	.bopname {
     	margin-left: auto;
         margin-right: auto;
         font-weight: bold;
-        font-size: 1.2em;
+        font-size: 1.2rem;
         font-style: italic;
         &::before, &::after {
             content: "-";

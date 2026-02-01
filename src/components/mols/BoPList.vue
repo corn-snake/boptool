@@ -3,7 +3,7 @@
 	import { bopData, compBop } from "../../stores/bopstore.js";
 	import { RouterLink } from "vue-router";
 
-	const bopReset = ( bn=-1, cn = 0) =>{
+	const bopReset = (bn=-1, cn = 0) =>{
         bopData.player = -1;
         bopData.bop = bn;
         bopData.turn = -1;
@@ -12,59 +12,68 @@
 </script>
 
 <template>
-	<div class="bopcontainer hostedBoPs" v-show="boppeList.hosts.length > 0">
-		<span class="title hosting">Hosting:</span>
-		<RouterLink
-			class="bop"
-			v-for="item in boppeList.hosts"
-			:to="`/bop/bigMod/${item[0]}`"
-			@click.native="() => bopReset(item[0],2)"
-		>
-			<span>
-				{{ item[1] }}
-			</span>
-		</RouterLink>
-	</div>
-	<div class="bopcontainer cohostedBoPs" v-show="boppeList.chost.length > 0">
-		<span class="subtitle co-hosting">Co-hosting: </span>
-		<RouterLink
-			class="bop"
-			v-for="item in boppeList.chost"
-			:to="`/bop/mod/${item[0]}`"
-			@click.native="() => bopReset(item[0],1)"
-		>
-			<span>
-				{{ item[1] }}
-			</span>
-		</RouterLink>
-	</div>
-	<div class="bopcontainer playedBoPs" v-show="boppeList.plays.length > 0">
-		<span class="title playing">Playing in:</span>
-		<RouterLink
-			class="bop"
-			v-for="item in boppeList.plays"
-			:to="`/bop/${item[0]}`"
-			@click.native="() => bopReset(item[0])"
-		>
-			<span>
-				{{ item[1] }}
-			</span>
-		</RouterLink>
-	</div>
+    <div class="allbops">
+    	<div class="bopcontainer hostedBoPs" v-show="boppeList.hosts.length > 0">
+    		<span class="title hosting">Hosting:</span>
+    		<RouterLink
+    			class="bop"
+    			v-for="item in boppeList.hosts"
+    			:to="`/bop/bigMod/${item[0]}`"
+    			@click.native="() => bopReset(item[0],2)"
+    		>
+    			<span>
+    				{{ item[1] }}
+    			</span>
+    		</RouterLink>
+    	</div>
+    	<div class="bopcontainer cohostedBoPs" v-show="boppeList.chost.length > 0">
+    		<span class="subtitle co-hosting">Co-hosting: </span>
+    		<RouterLink
+    			class="bop"
+    			v-for="item in boppeList.chost"
+    			:to="`/bop/mod/${item[0]}`"
+    			@click.native="() => bopReset(item[0],1)"
+    		>
+    			<span>
+    				{{ item[1] }}
+    			</span>
+    		</RouterLink>
+    	</div>
+    	<div class="bopcontainer playedBoPs" v-show="boppeList.plays.length > 0">
+    		<span class="title playing">Playing in:</span>
+    		<RouterLink
+    			class="bop"
+    			v-for="item in boppeList.plays"
+    			:to="`/bop/${item[0]}`"
+    			@click.native="() => bopReset(item[0])"
+    		>
+    			<span>
+    				{{ item[1] }}
+    			</span>
+    		</RouterLink>
+    	</div>
+    </div>
 </template>
 
 <style scoped>
+    .sidebar .allbops {
+        overflow-y: scroll;
+        flex-wrap: nowrap;
+    }
 	.bopcontainer {
-		padding: 1em;
+	    display: flex;
+        flex-direction: column;
+        width: calc(100% - 2rem);
+		padding: 1rem;
 	}
 	.bop {
 		font-size: 13px;
-		margin: 0.5em 0 0 1em;
+		margin: 0.5rem 0 0 1rem;
 		position: relative;
-		padding: 0.4em 0;
+		padding: 0.4rem 0;
 	}
 	.bop:first-of-type {
-		padding-top: 0.5em;
+		padding-top: 0.5rem;
 	}
 	.bop::after {
 		position: absolute;

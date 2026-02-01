@@ -1,6 +1,6 @@
 <script setup>
 	import { watch, computed, ref, onMounted, onUnmounted } from "vue";
-	import { boppise, lastIsProcessing, finishedFirstFetch, getPlayers, list } from "../lib/loadTrack.js";
+	import { boppise, finishedFirstFetch, getPlayers, list } from "../lib/loadTrack.js";
 	import { compBop, players, bopData } from "../stores/bopstore.js";
 	import { boppeList } from "../stores/authStore.js";
 	import HistoryLine from "../components/atoms/HistoryLine.vue";
@@ -14,7 +14,7 @@
 
 	const route = useRoute();
 
-	const rw = computed(()=>(route.params.turn == Object.keys(compBop.history).at(-1) && lastIsProcessing.value)||route.params.turn==undefined);
+	const rw = computed(()=>(route.params.turn == Object.keys(compBop.history).at(-1) && bopData.lastIsProcessing)||route.params.turn==undefined);
 
 	compBop.title = "Loading...";
 	boppise(route.params.id).then((r) => {
@@ -23,7 +23,7 @@
 		compBop.title = boppeList.names[bopData.bop];
 		bopData.claim = Object.values(compBop.history).at(-1);
 		finishedFirstFetch.value = true;
-		lastIsProcessing.value = r.lastIsProcessing;
+		bopData.lastIsProcessing = r.lastIsProcessing;
 		bopData.turn = Object.keys(compBop.history).at(-1);
 		return r;
 	});
@@ -36,7 +36,7 @@
                 bopData.bop = parseInt(route.params.id);
                 compBop.title = boppeList.names[bopData.bop];
                 bopData.claim = Object.values(compBop.history).at(-1);
-                lastIsProcessing.value = r.lastIsProcessing;
+                bopData.lastIsProcessing = r.lastIsProcessing;
                 bopData.turn = Object.keys(compBop.history).at(-1);
                 return r;
             })
@@ -56,7 +56,7 @@
 	onUnmounted(()=>window.removeEventListener('resize', winChange));
 </script>
 <template>
-	<HistoryLine :st="bopData.turn" class="pt" />
+	<HistoryLine :st="bopData.turn" class="pt" @selItem="n=>bopData.turn = n" />
 	<div :class="wwidth >= 600 ? 'sideselect' : 'withtopselect'">
 		<GenericLine :array="players" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p=>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
 			class="cl fwn" />
@@ -68,11 +68,11 @@
     	display: flex;
     	.cl {
     		justify-content: flex-start;
-    		padding-top: 1.5em;
+    		padding-top: 1.5rem;
     		font-style: italic;
-    		padding-right: 1.5em;
-    		min-width: 8.5em;
-    		max-width: 8.5em;
+    		padding-right: 1.5rem;
+    		min-width: 8.5rem;
+    		max-width: 8.5rem;
     	}
     	.cc {
     		flex-grow: 1;

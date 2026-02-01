@@ -1,7 +1,7 @@
 import { fetchBops, fetchBoPStuff, fetchTurnPlayers } from './../lib/bopfunctions.js';
 import { validateUser, killLogin, sha512, validateBopStanding } from './../lib/dbfunctions.js';
 import { custom404, small403, Router } from './../lib/miscellanea.js';
-import { callR2 } from './../lib/filefunctions.js';
+import { callR2, sendR2 } from './../lib/filefunctions.js';
 import sb from './../sb/sb.js';
 
 const dev = false;
@@ -145,11 +145,78 @@ const routing = (new Router({dev}))
         // K {C:card R:report O:orders}
         // bid,turn,player
 
-        if (dev)
-            return res.end(await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? "FILEEMPTY");
+        const emptyData = new FormData();
+        emptyData.append("at", -1);
+        emptyData.append("file", "FILEEMPTY");
 
-        return new Response(await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? "FILEEMPTY", {
+        if (dev)
+            return res.end(await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? emptyData);
+
+        return new Response(await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? emptyData, {
             status: 200,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }
+        });
+    })
+    .put("/file", async (req, res) =>{
+        const fd = dev ? req.body : await(await req).formData();
+        // ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${player}>, ${prospectiveTimeStamp}]
+        const b = [fd.get("uname"), fd.get("proof"), fd.get("bid"), fd.get("turn"), fd.get("claim"), fd.get("type"), fd.get("player")],
+            prosTimestamp = fd.get("at"),
+            newTimestamp = fd.get("newAt");
+        const c = await validateUser(b);
+        if (c === false)
+            if (dev) {
+                res.status = 403;
+                res.end("failed to verify.");
+            }
+            else return small403();
+
+        const d = await validateBopStanding(b[2], b[3], c.uid, b[4]);
+        if (d === false)
+            if (dev) {
+                res.status = 403;
+                res.end("failed to verify.");
+            }
+            else return small403();
+
+        const r = await sendR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`, prosTimestamp, newTimestamp, fd);
+        if (r === true) {
+            if (dev)
+                return res.end();
+            return new Response(null, {
+                status: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }
+            })
+        }
+
+        if (r > 299) {
+            if (dev) {
+                res.writeHead(r);
+                return res.end();
+            }
+
+            return new Response(null, {
+                status: r,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }
+            });
+        }
+
+        // responses 199 and under are safely ignorable (101 means something is *fucked* in cloudflare). r300 - 399 are problems but the structure of R2/S3 prevent redirections like such, though we should still have a way to make a ruckus if they happen. 400 and above are what we assume is fucked.
+        // numbers below 100 cannot happen and thus can only mean r failed via ts comparison
+        const conflict = await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? "FILEEMPTY";
+        if (dev) {
+            res.writeHead(409); // Conflict!
+            return res.end(await conflict);
+        }
+
+        return new Response(await conflict, {
+            status: 409,
             headers: {
                 "Access-Control-Allow-Origin": '*'
             }

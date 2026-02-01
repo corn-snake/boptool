@@ -1,12 +1,16 @@
 {
     "tasks": {
         "dev": "deno run -A npm:vite",
-        "sdev": "cd serve && deno run --watch --allow-net index.js"
+        "sdev": "cd serve && deno run --watch --allow-net --allow-env --allow-sys=\"osRelease\" --allow-read=\"/root/.aws\" index.js"
     },
     "imports": {
+        "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.980.0",
+        "@supabase/supabase-js": "jsr:@supabase/supabase-js@^2.56.0",
+        "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^5.2.4",
         "bulletin-board-code": "npm:bulletin-board-code@^1.0.2",
         "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
         "lodash": "npm:lodash@^4.17.21",
+        "vite": "npm:vite@^6.3.5",
         "vue": "npm:vue@^3.4.21",
         "vue-router": "npm:vue-router@^4.5.0",
         "vue-slide-up-down": "npm:vue-slide-up-down@^3.0.0"

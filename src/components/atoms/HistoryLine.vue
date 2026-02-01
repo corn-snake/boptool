@@ -3,8 +3,8 @@
     import { compBop, bopData } from '../../stores/bopstore';
     import GenericLine from './GenericLine.vue';
     const props = defineProps(["st"]);
-    const selTurn = (tn = -1) => bopData.turn = tn;
+    defineEmits(["selTurn"]);
 </script>
 <template>
-    <GenericLine :array="Object.keys(compBop.history)" :si="props.st" @selItem="k=>selTurn(k.value)" pronomen="T"/>
+    <GenericLine :array="Object.keys(compBop.history)" :si="props.st" @selItem="n=>$emit('selTurn', n.value)" pronomen="T"/>
 </template>

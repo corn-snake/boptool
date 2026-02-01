@@ -10,7 +10,7 @@
 		<RouterLink to="/" :class="['lonk', finishedFirstFetch ? 'off' : '']">
 			<div :class="[!logged ? 'active' : '', 'returner']">
 				<div class="title">BoP Tool v2.5</div>
-				<div class="subtitle ovimp">*maniacal laughter</div>
+				<div class="subtitle ovimp">*even more manic cackling</div>
 			</div>
 		</RouterLink>
 		<BoPList />
@@ -39,11 +39,11 @@
 		border-right: 1px solid rgba(0, 0, 0, 0.12);
 		z-index: 2;
 		transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), var(--trbg);
-		height: fit-content;
 		min-height: 100dvh;
+		max-height: 100dvh;
 	}
 	.returner {
-		padding: 0.72em 1em;
+		padding: 0.72rem 1rem;
 	}
 	.returner .title {
 		font-weight: 500;

@@ -47,7 +47,7 @@ const sha512 = (str) => crypto.subtle.digest("SHA-512", new TextEncoder("utf-8")
 const isAuth = ref(await(async()=>{
     if (localStorage.getItem('stamp') == null) return false;
     const proof = await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`);
-    const conf = await fetch(`${location.protocol}//${location.hostname}:800/auth`, {
+    const conf = await fetch(`${location.protocol}//${location.hostname}/api/auth`, {
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body:`["${localStorage.getItem('uname')}","${await proof}"]`
@@ -69,7 +69,7 @@ async function tryAuth(usr,pwd,callback,errorCallback){
         localStorage.setItem("stamp",await sha512(`${rn}+${d}+${usr}`));
         localStorage.setItem("uname",usr);
     }
-    fetch(`${location.protocol}//${location.hostname}:800/login`,{
+    fetch(`${location.protocol}//${location.hostname}/api/login`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body: `["${await uHash}","${await pHash}","${localStorage.getItem("stamp")}"]`
@@ -91,7 +91,7 @@ async function tryAuth(usr,pwd,callback,errorCallback){
 }
 
 function killLogin(callback){
-    fetch(`${location.protocol}//${location.hostname}:800/invalidate`,{
+    fetch(`${location.protocol}//${location.hostname}/api/invalidate`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body: localStorage.getItem("stamp")

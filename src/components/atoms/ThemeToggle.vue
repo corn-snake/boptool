@@ -41,7 +41,7 @@
 		object-fit: contain;
 	}
 	.c.right {
-		transform: translateX(calc(4.5em - 0.6em - 1.5em - 1px));
+		transform: translateX(calc(4.5rem - 0.6rem - 1.5rem - 1px));
 	}
 	img {
 		width: 100%;

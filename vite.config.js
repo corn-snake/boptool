@@ -1,13 +1,18 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-//import { apiServer } from "vite-api-server";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue(),
-        //apiServer({handler: "./serve/routing.js"})
-    ],
+    plugins: [vue()],
     server: {
-        port: 80
+        host: true,
+        allowedHosts: ["boptwooltest.cornsnake.fyi"],
+        port: 80,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:800',
+                rewrite: (path) => path.replace(/^\/api/, '')
+            }
+        }
     }
 })
