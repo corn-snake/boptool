@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { sha512 } from "../stores/authStore.js";
+import { sha512, usr } from "../stores/authStore.js";
 import { players } from "../stores/bopstore.js";
 
 const setupTsDb = () => new Promise((resolve, reject) => {
@@ -68,7 +68,8 @@ setOgTimestamp = async (file, ts) => {
 const getFileLocal = async (bid, turn, player, type) => {
     try {
         const opfsRoot = await navigator.storage.getDirectory();
-        const directoryHandle = await opfsRoot.getDirectoryHandle(bid);
+        const playerDirHandle = await opfsRoot.getDirectoryHandle(usr.name);
+        const directoryHandle = await playerDirHandle.getDirectoryHandle(bid);
         const orders = await directoryHandle.getFileHandle(
             `${type}${turn}${player > 0 ? "p" + player : ""}`,
         );
@@ -109,7 +110,10 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
         saveLock.value += 1;
         try {
             const opfsRoot = await navigator.storage.getDirectory();
-            const directoryHandle = await opfsRoot.getDirectoryHandle(bid,
+            const playerDirHandle = await opfsRoot.getDirectoryHandle(usr.name,
+                { create: true },
+            );
+            const directoryHandle = await playerDirHandle.getDirectoryHandle(bid,
                 { create: true },
             ); // one folder per bop (bid)
             const orders = await directoryHandle.getFileHandle(
@@ -119,7 +123,7 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
             const ordersWr = await orders.createWritable();
             await ordersWr.write(evn.target.value);
             await ordersWr.close();
-            await setTimestamp(`${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`, Date.now());
+            await setTimestamp(`${usr.name}/${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`, Date.now());
         } catch (e) {
             alert(`Something happened while saving!\n\nThe following is the error log:\n${e}`)
         } finally {
@@ -141,7 +145,7 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
             fd.append("proof", await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`));
             fd.append("claim", claim);
             fd.append("at", await getOgTimestamp(`${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`));
-            fd.append("newAt", await getTimestamp(`${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`));
+            fd.append("newAt", await getTimestamp(`${usr.name}/${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`));
             return fd;
         },
             sendRemote = fd=>{
