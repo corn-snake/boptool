@@ -1,6 +1,6 @@
 <script setup>
-	import { watch, computed, ref, onMounted, onUnmounted } from "vue";
-	import { boppise, finishedFirstFetch, getPlayers, list } from "../lib/loadTrack.js";
+	import { watch, ref, onMounted, onUnmounted } from "vue";
+	import { boppise, getPlayers, list, playerGetLock } from "../lib/loadTrack.js";
 	import { compBop, players, bopData } from "../stores/bopstore.js";
 	import { boppeList } from "../stores/authStore.js";
 	import HistoryLine from "../components/atoms/HistoryLine.vue";
@@ -12,42 +12,41 @@
         inheritAttrs: false
     })
 
-	const route = useRoute();
-
-	const rw = computed(()=>(route.params.turn == Object.keys(compBop.history).at(-1) && bopData.lastIsProcessing)||route.params.turn==undefined);
+	const route = useRoute(),
+    plyrstrs = ref([]);
 
 	compBop.title = "Loading...";
+	bopData.claim = list[route.params.claim];
 	boppise(route.params.id).then((r) => {
-		compBop.history = JSON.parse(r.hist);
+		compBop.history = r.hist;
 		bopData.bop = parseInt(route.params.id);
 		compBop.title = boppeList.names[bopData.bop];
-		bopData.claim = Object.values(compBop.history).at(-1);
-		finishedFirstFetch.value = true;
 		bopData.lastIsProcessing = r.lastIsProcessing;
-		bopData.turn = Object.keys(compBop.history).at(-1);
+		bopData.turn = compBop.history.at(-1);
+		playerGetLock.value = true;
 		return r;
-	});
+	}).then(r=> getPlayers(route.params.id, bopData.turn, list[route.params.claim])).then(({pcs, npcs}) => {
+   	    players.value = pcs;
+        playerGetLock.value = false;
+    });
 	watch(
 		() => route.params,
 		(newId, oldId) => {
 		    compBop.title = "Loading...";
+			bopData.claim = list[route.params.claim];
     		boppise(route.params.id).then((r) => {
-                compBop.history = JSON.parse(r.hist);
+                compBop.history = r.hist;
                 bopData.bop = parseInt(route.params.id);
                 compBop.title = boppeList.names[bopData.bop];
-                bopData.claim = Object.values(compBop.history).at(-1);
                 bopData.lastIsProcessing = r.lastIsProcessing;
-                bopData.turn = Object.keys(compBop.history).at(-1);
-                return r;
-            })
+                bopData.turn = compBop.history.at(-1);
+                bopData.player = -1;
+            });
 		}
 	);
-	watch(
-		()=>bopData.turn,
-		(nv, ov)=>{
-			getPlayers(route.params.id, bopData.turn, list[route.params.claim]).then(p => players.value = p);
-		}
-	);
+	watch(() => players.value, n => {
+	    plyrstrs.value = n.map(({ player, name }) => `${player} (${name})`)
+	});
 	const wwidth = ref(document.getElementById("app").offsetWidth),
 	winChange = ()=>{
 	    wwidth.value = document.getElementById("app").offsetWidth;
@@ -56,10 +55,12 @@
 	onUnmounted(()=>window.removeEventListener('resize', winChange));
 </script>
 <template>
-	<HistoryLine :st="bopData.turn" class="pt" @selItem="n=>bopData.turn = n" />
+	<HistoryLine :st="bopData.turn" class="pt" @selTurn="n=>bopData.turn = n" />
 	<div :class="wwidth >= 600 ? 'sideselect' : 'withtopselect'">
-		<GenericLine :array="players" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p=>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
+		<GenericLine :array="plyrstrs" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p =>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
 			class="cl fwn" />
+		<!-- GenericLine :array="npcs" :si="bopData.npc" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p =>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
+			class="cl fwn" /-->
 		<CountryCollection :strip="true" class="cc" :bindToPlayer="true" />
 	</div>
 </template>

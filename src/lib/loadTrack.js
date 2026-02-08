@@ -22,13 +22,13 @@ const list = Object.freeze({
     bigMod: 2
 });
 
-async function boppise(bid, turn=-1, claim=0) {
+async function boppise(bid, nh=true) {
     const uname = localStorage.getItem('uname'),
         proof = await sha512(`${uname}+${localStorage.getItem('stamp')}`);
     return await fetch(`/api/bop`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
-        body: `["${uname}","${proof}","${bid}","${turn}",${claim}]`,
+        body: `["${uname}","${proof}","${bid}", ${nh}]`,
     }).then(r=>r.json());
 }
 
@@ -100,10 +100,17 @@ async function fileget(bid, turn, claim=0, player, type) {
     });
 }
 
+const getAllBoppers = async() => fetch("/api/boppers", {
+    "Access-Control-Allow-Origin": '*',
+    method: "POST",
+    body: `["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`,
+}).then(r=>r.json());
+
 const finishedFirstFetch = ref(false);
 
 const saveLock = ref(0),
-    remoteSaveLock = ref(0);
+    remoteSaveLock = ref(0),
+    playerGetLock =  ref(false);
 
 const saveFileLocal = (bid, turn, player, type) => (event) => {
     const f = async (evn) => {
@@ -162,9 +169,34 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
         }).then(fd => sendRemote(fd));
     };
 
+const createBoP = async(data)=>fetch("/api/createBoP", {method: "POST", body:JSON.stringify({
+    user: [localStorage.getItem("uname"), await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`)],
+    bopdata: {
+        name: data.name,
+        icon: data.icon
+    },
+    turndata: {
+        host: data.host,
+        chosts: data.chosts,
+        players: data.players,
+        npcs: data.npcs
+    }
+})}).then(async (r)=>{if(r.status === 201) console.log(`created game # ${await r.text()} "${data.name}!"`); else console.error(await r.text()); return r}).catch(e=>alert(e));
+
+const reloadData = async()=>fetch(`${location.protocol}//${location.hostname}/api/auth`, {
+        "Access-Control-Allow-Origin": '*',
+        method: "POST",
+        body:`["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`
+    }).then(async(r)=>{
+        if(r.status == 200) {
+            fetchedRefs(await r.json())
+        }
+        return r;
+    });
+
 // filename: Kb<b>t<t>p<p>.bb
 // K {C:card R:report O:orders}
 // bid,turn,player
 // ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${unameSel}>]
 
-export {load, makeLoad, unLoad, boppise, fileget, finishedFirstFetch, getPlayers, list, players, saveFileLocal, saveLock, saveFileRemote, remoteSaveLock};
+export {load, makeLoad, unLoad, boppise, fileget, finishedFirstFetch, getPlayers, getAllBoppers, list, players, saveFileLocal, saveLock, saveFileRemote, remoteSaveLock, playerGetLock, createBoP, reloadData};

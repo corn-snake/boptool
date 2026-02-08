@@ -16,7 +16,8 @@ const routing = (new Router({dev}))
                 return res.end(await fetchBops({
                     uname: (await b)[0],
                     uid: await c.uid,
-                    forumpic: await c.forumpic
+                    pic: await c.forumpic,
+                    amdin: await c.amdin
                 }))
             res.status = 403;
             return res.end("failed to verify.");
@@ -24,7 +25,8 @@ const routing = (new Router({dev}))
         return c !== false ? new Response(await fetchBops({
             uname: (await b)[0],
             uid: await c.uid,
-            forumpic: await c.forumpic
+            pic: await c.forumpic,
+            amdin: await c.amdin
         }), {
             status: 200,
             headers: {
@@ -33,21 +35,30 @@ const routing = (new Router({dev}))
         }) : small403();
     })
     .post("/bop", async (req,res)=>{
-        //[uname,signed,bid,turn,claim]
-        const b = dev ? req.body : (await req).json();
+        //[uname,signed,bid]
+        const b = dev ? req.body : await (await req).json();
         const c = await validateUser(await b);
         if (c=== false && dev) {
             res.status = 403;
             return res.end("failed to verify.");
         }
         if (c === false) return small403();
-        const fetchedBoP = await fetchBoPStuff(c, (await b)[2], (await b)[3], (await b)[4]);
-        return fetchedBoP;
+
+        const fetchedBoP = await fetchBoPStuff(c, (await b)[2], (await b)[3]);
+
+        if (dev)
+            return res.end(await fetchedBoP);
+        return new Response(await fetchedBoP, {
+            status: 200,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }
+        });
     })
     .post("/login", async (req,res)=>{
         //[uhash,phash,stamp]
         const a = dev ? req.body : (await req).json();
-        if (!Array.isArray(await a) || (await a).length !== 3 || (await a).reduce((ac, c) => ac += c.length, 0) !== 128 * 3)
+        if (!Array.isArray(await a) || (await a).length !== 3 || (await a).reduce((ac, c) => ac + c.length, 0) !== 128 * 3)
             if (dev) {
                 res.status = 400;
                 return res.end("payload length is wrong.");
@@ -65,7 +76,7 @@ const routing = (new Router({dev}))
                 pwd: await b[1],
                 tkn: await b[2]
             },
-            logquery = await sb.schema("bop_userdata").from("ud").select("uid,uname,sfhash,forumpic").eq("uhash", cl.user);
+            logquery = await sb.schema("bop_userdata").from("ud").select("uid,uname,sfhash,pic: forumpic").eq("uhash", cl.user);
         if (logquery.data.length < 1)
             if (dev) {
                 res.status = 404;
@@ -78,7 +89,7 @@ const routing = (new Router({dev}))
         if (usr.sfhash !== passHash)
             if(dev) {
                 res.status = 403;
-                res.end("wrong password.")
+                return res.end("wrong password.")
             }
             else
                 return new Response('wrong password.', {
@@ -129,7 +140,7 @@ const routing = (new Router({dev}))
         if (c === false)
             if (dev) {
                 res.status = 403;
-                res.end("failed to verify.");
+                return res.end("failed to verify.");
             }
             else return small403();
 
@@ -137,7 +148,7 @@ const routing = (new Router({dev}))
         if (d === false)
             if (dev) {
                 res.status = 403;
-                res.end("failed to verify.");
+                return res.end("failed to verify.");
             }
             else return small403();
         // ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${unameSel}>]
@@ -169,7 +180,7 @@ const routing = (new Router({dev}))
         if (c === false)
             if (dev) {
                 res.status = 403;
-                res.end("failed to verify.");
+                return res.end("failed to verify.");
             }
             else return small403();
 
@@ -177,7 +188,7 @@ const routing = (new Router({dev}))
         if (d === false)
             if (dev) {
                 res.status = 403;
-                res.end("failed to verify.");
+                return res.end("failed to verify.");
             }
             else return small403();
 
@@ -195,7 +206,7 @@ const routing = (new Router({dev}))
 
         if (r > 299) {
             if (dev) {
-                res.writeHead(r);
+                res.status = r;
                 return res.end();
             }
 
@@ -209,9 +220,13 @@ const routing = (new Router({dev}))
 
         // responses 199 and under are safely ignorable (101 means something is *fucked* in cloudflare). r300 - 399 are problems but the structure of R2/S3 prevent redirections like such, though we should still have a way to make a ruckus if they happen. 400 and above are what we assume is fucked.
         // numbers below 100 cannot happen and thus can only mean r failed via ts comparison
-        const conflict = await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? "FILEEMPTY";
+        const emptyData = new FormData();
+        emptyData.append("at", -1);
+        emptyData.append("file", "FILEEMPTY");
+
+        const conflict = await callR2(`${b[5]}b${b[2]}t${b[3]}p${b[4] > 0 ? b[6] : d}`) ?? emptyData;
         if (dev) {
-            res.writeHead(409); // Conflict!
+            res.status = 409; // Conflict!
             return res.end(await conflict);
         }
 
@@ -234,8 +249,68 @@ const routing = (new Router({dev}))
             return small403();
 
         if (dev)
-            return res.end(fetchTurnPlayers(c,b[2], b[3]))
-        return fetchTurnPlayers(c, b[2], b[3]);
+            return res.end(await fetchTurnPlayers(c,b[2], b[3]))
+        return new Response(await fetchTurnPlayers(c, b[2], b[3]), {status: 200, headers: {
+            "Access-Control-Allow-Origin": '*'
+        }});
+    })
+    .post("/boppers",async(req,res)=>{
+        // ["${uname}","${await proof}"]
+        const b = dev ? req.body : await(await req).json();
+        const c = await validateUser(await b);
+        if (c === false || (c && c.amdin === false))
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        const d = await sb.schema("bop_userdata").from("ud").select("uname,uid").order("uname", {ascending: true}),
+            e = JSON.stringify(d.data);
+        if (dev)
+            return res.end(e)
+        return new Response(e, {status: 200,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }});
+    })
+    .post("/createBoP",async(req,res)=>{
+        const b = dev ? req.body : await(await req).json();
+        const c = await validateUser(await b.user);
+        if (c === false || (c && c.amdin === false))
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+        const d = await sb.schema("bop_bopdata").from("bops").insert(b.bopdata).select();
+        if (d.error !== null)
+            if (dev) {
+                res.status = 500;
+                res.end(JSON.stringify(d.error))
+            } else return new Response(JSON.stringify(d.error), {
+                status: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+
+        const e = await sb.schema("bop_bopdata").from("turns").insert({ bid: d.data[0].id, number: 1, ...(b.turndata), processing: true });
+        if (e.error !== null)
+            if (dev) {
+                res.status = 500;
+                res.end(JSON.stringify(e.error))
+            } else return new Response(JSON.stringify(e.error), {
+                status: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+
+        if (dev) return res.end(d.data[0].id);
+        return new Response(d.data[0].id, {
+            status: 201,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }});
     })
 
 export default routing;

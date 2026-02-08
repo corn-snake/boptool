@@ -1,25 +1,21 @@
 <script setup>
-	import { boppeList } from "../../stores/authStore.js";
-	import { bopData, compBop } from "../../stores/bopstore.js";
+	import { boppeList, usr } from "../../stores/authStore.js";
 	import { RouterLink } from "vue-router";
-
-	const bopReset = (bn=-1, cn = 0) =>{
-        bopData.player = -1;
-        bopData.bop = bn;
-        bopData.turn = -1;
-        bopData.claim = cn;
-	}
 </script>
 
 <template>
     <div class="allbops">
+        <div v-if="usr.amdin === true" class="bopcontainer admincont">
+            <RouterLink class="amdin title" to="/mat">
+                <span>Admin panel</span>
+            </RouterLink>
+        </div>
     	<div class="bopcontainer hostedBoPs" v-show="boppeList.hosts.length > 0">
     		<span class="title hosting">Hosting:</span>
     		<RouterLink
     			class="bop"
     			v-for="item in boppeList.hosts"
     			:to="`/bop/bigMod/${item[0]}`"
-    			@click.native="() => bopReset(item[0],2)"
     		>
     			<span>
     				{{ item[1] }}
@@ -32,7 +28,6 @@
     			class="bop"
     			v-for="item in boppeList.chost"
     			:to="`/bop/mod/${item[0]}`"
-    			@click.native="() => bopReset(item[0],1)"
     		>
     			<span>
     				{{ item[1] }}
@@ -45,7 +40,6 @@
     			class="bop"
     			v-for="item in boppeList.plays"
     			:to="`/bop/${item[0]}`"
-    			@click.native="() => bopReset(item[0])"
     		>
     			<span>
     				{{ item[1] }}
@@ -65,6 +59,11 @@
         flex-direction: column;
         width: calc(100% - 2rem);
 		padding: 1rem;
+	}
+	.admincont {
+        padding: 0;
+        margin-top: 0.8rem;
+        align-self: center;
 	}
 	.bop {
 		font-size: 13px;
@@ -88,20 +87,38 @@
 		transition: opacity 0.2s ease-out, var(--trbg);
 		border-radius: 3pt;
 	}
-	.bop:not(.current):hover:after {
+	.bop:not(.current):hover::after {
 		opacity: 0.04;
 	}
 	.bop.current::after {
 		opacity: 0.12;
 	}
+	.amdin {
+        padding: 0.6rem 0;
+        font-size: 0.9rem;
+        font-weight: 450;
+        border-radius: 4pt;
+	}
+	.amdin:not(.current):hover {
+        background-color: color-mix(in srgb, currentColor 4%, transparent 96%);
+	}
+	.amdin.current {
+	    background-color: color-mix(in srgb, currentColor 12%, transparent 88%);
+	}
+	.admincont + .bopcontainer {
+        padding-top: 0.6rem;
+	}
 	.dt .bop::before {
 		background-color: #85edff;
 	}
-	.title {
+	.title, .amdin {
 	    font-weight: 450;
 	}
 	.dt .subtitle {
 	    color: rgba(0.8,0.8,1,0.6)
+	}
+	.amdin {
+        text-align: center;
 	}
 	@media (prefers-color-scheme: dark) {
 		.bop::before {

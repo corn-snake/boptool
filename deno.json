@@ -13,6 +13,7 @@
         "vite": "npm:vite@^6.3.5",
         "vue": "npm:vue@^3.4.21",
         "vue-router": "npm:vue-router@^4.5.0",
-        "vue-slide-up-down": "npm:vue-slide-up-down@^3.0.0"
+        "vue-slide-up-down": "npm:vue-slide-up-down@^3.0.0",
+        "vue3-select": "npm:vue3-select@^0.1.2"
     }
 }

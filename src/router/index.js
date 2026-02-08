@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router"
 import Login from '../views/Login.vue'
 import Landing from "../views/Landing.vue";
+import Ndända from "../views/Ndända.vue"
 import Noble from "../views/Noble.vue";
 //import Micromanager from "../views/Micromanager.vue";
 import MainFrame from "../views/MainFrame.vue";
@@ -15,6 +16,11 @@ const routes = [
         path: '/',
         name: 'Landing',
         component: Landing
+    },
+    {
+        path: '/mat',
+        name: 'Ndända',
+        component: Ndända
     },
     {
         path:'/bop/:id',

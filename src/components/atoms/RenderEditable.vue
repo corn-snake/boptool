@@ -2,11 +2,7 @@
     import { ref, watch, computed, reactive } from 'vue';
     defineEmits(["edit"]);
     const props = defineProps(["file"]);
-    const shy = reactive({
-        editor: false,
-        preview: true
-    });
-	const toRender=ref("[i]loading...[/i]"),
+	const toRender=ref(props.file),
 	    rendered = computed(()=>bbcparser.toHTML(toRender.value === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender.value));
 	watch(()=>props.file, (nv,ov)=>toRender.value = props.file);
 	const showRender = ref(false),

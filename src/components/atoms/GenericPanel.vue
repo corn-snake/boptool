@@ -1,7 +1,7 @@
 <script setup>
-	import { bopData, lt, lastTurn } from "../../stores/bopstore";
-	import { fileget, saveFileLocal, saveFileRemote, saveLock, remoteSaveLock } from "../../lib/loadTrack";
-	import { watch, ref, computed, reactive } from "vue";
+	import { bopData, lt, players, compBop } from "../../stores/bopstore.js";
+	import { fileget, saveFileLocal, saveFileRemote, saveLock, remoteSaveLock, getPlayers, list, finishedFirstFetch, playerGetLock } from "../../lib/loadTrack.js";
+	import { watch, ref, computed } from "vue";
 	import RenderPanel from "./RenderPanel.vue";
 	import RenderEditable from "./RenderEditable.vue";
 	import HistoryLine from "./HistoryLine.vue";
@@ -10,36 +10,71 @@
 	const props = defineProps(["type", "d", "strip", "doubleBind"]), route = useRoute();
 	const localTurn = ref(-1);
 	const panelGet = ref("[i]loading...[/i]"),
+	    errored = ref(false),
 		rw = computed(()=>{
-		    if (bopData.claim > 0 && bopData.lastIsProcessing === true && props.type !== "O" && localTurn.value === lastTurn.value)
+            if (errored.value === true) return false;
+		    if (bopData.claim > 0 && bopData.lastIsProcessing === true && props.type !== "O" && localTurn.value === compBop.history.at(-1))
 				return true;
-			if (bopData.claim <= 0 && bopData.lastIsProcessing === false && props.type === "O" && localTurn.value === lastTurn.value)
+			if (bopData.claim <= 0 && bopData.lastIsProcessing === false && props.type === "O" && finishedFirstFetch.value === true && localTurn.value === compBop.history.at(-1).number)
 			    return true;
 			return false;
 		}),
 
 		fetchTurn = computed(()=>{
-    		if (bopData.lastIsProcessing === true && bopData.claim > 0 && props.type === "O")
+    		if (bopData.lastIsProcessing === true && bopData.claim > 0 && props.type === "O" && localTurn.value === compBop.history.at(-1))
                 return localTurn.value - 1;
             return localTurn.value;
 		}),
-		refresh = ()=>fileget(route.params.id, fetchTurn.value, bopData.claim, bopData.player, props.type).then((t) => panelGet.value = t);
+		refresh = ()=>fileget(route.params.id, fetchTurn.value, bopData.claim, bopData.player, props.type).then((t) => panelGet.value = t).catch(e=>{
+            errored.value = true;
+            panelGet.value = "something very bad happened. [b]fuck![/b]";
+		});
 	defineEmits(["turn"]);
+    watch(() => bopData.turn, (n, o) => {
+        if (props.doubleBind === true && bopData.claim > 0 && n !== undefined && n !== -1 && playerGetLock.value === false) {
+            playerGetLock.value = true;
+            getPlayers(route.params.id, bopData.turn, list[route.params.claim]).then(({pcs, npcs}) => {
+                if (bopData.player >= 0) {
+                    const plyr = players.value.at(bopData.player).player;
+               	    players.value = pcs;
+                    if (players.value.findIndex(p=>p.player === plyr) < 0)
+                        return bopData.player = -1;
+                    else
+                        return bopData.player = players.value.findIndex(p=>p.player === plyr);
+                }
+                localTurn.value = n;
+                playerGetLock.value = false;
+            })
+        }
+    });
 	watch(
-        bopData,
+        ()=>compBop.history.at(-1),
 		(n,o) => {
+            if (n === undefined) return;
+            if (bopData.claim > 0 && n !== localTurn.value)
+                localTurn.value = n;
+    		else if (n.number !== localTurn.value)
+                localTurn.value = n.number;
+		});
+    watch(()=>bopData.player, (n, o) => {
+  		if ((props.doubleBind === true && n < 0) || localTurn.value < 0)
+            return panelGet.value = `Select a ${localTurn >= 0 ? "player" : "turn"} from the list.`;
+        if (n !== -1 && localTurn.value !== -1 && props.doubleBind === true) {
             panelGet.value = "[i]loading...[/i]";
-			if (props.doubleBind === true && (bopData.player==-1 || bopData.turn==-1))
-			    return panelGet.value = `Select a ${bopData.turn >= 0 ? "player" : "turn"} from the list.`;
-            localTurn.value = bopData.turn;
-		},{deep: true});
-	watch(
-	    localTurn,
-		(n,o) => {
-		    panelGet.value = "[i]loading...[/i]";
-		    if (localTurn.value !== -1) return refresh()
-		}
-	)
+            return refresh();
+        }
+    });
+    watch(
+        () => localTurn.value,
+        (n, o) => {
+            if ((props.doubleBind === true && bopData.player < 0) || n < 0 || n === undefined)
+                return panelGet.value = `Select a ${n >= 0 ? "player" : "turn"} from the list.`;
+            if (n!== undefined && n !== -1) {
+                panelGet.value = "[i]loading...[/i]";
+                return refresh()
+            };
+        }
+    );
 </script>
 
 <template>
@@ -54,7 +89,7 @@
 	</h2>
 	<slide-up-down :active="props.d" :duration="600">
 	    <HistoryLine v-if="props.strip!==true" :st="localTurn" @selTurn="n=>localTurn = n" />
-    	<RenderPanel v-if="!rw" :file="panelGet" :hostOrder="props.type === 'O' && bopData.claim > 0" :pastOrder="props.type === 'O' && bopData.claim <= 0 && localTurn.value !== lastTurn" />
+    	<RenderPanel v-if="!rw" :file="panelGet" :hostOrder="props.type === 'O' && bopData.claim > 0" :pastOrder="props.type === 'O' && bopData.claim <= 0 && finishedFirstFetch && compBop.history.at(-1) !== undefined && localTurn !== compBop.history.at(-1).number" />
     	<RenderEditable v-if="rw" :file="panelGet" @edit="e=>saveFileLocal(bopData.bop, localTurn, bopData.player, props.type)(e)" />
         <nav class="slideBackUp">
             <button v-if="rw" :class="['remoteSave', 'submitter', saveLock > 0 ? 'ded' : '', remoteSaveLock > 0 ? 'breathing' : '']" @click="()=>saveFileRemote(bopData.bop, localTurn, bopData.player, props.type, bopData.claim)">

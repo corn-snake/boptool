@@ -5,6 +5,9 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
     plugins: [vue()],
     server: {
+        hmr: {
+            host: "boptwooltest.cornsnake.fyi"
+        },
         host: true,
         allowedHosts: ["boptwooltest.cornsnake.fyi"],
         port: 80,

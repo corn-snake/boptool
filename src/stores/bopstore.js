@@ -1,4 +1,4 @@
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { Parser } from 'bulletin-board-code';
 import { handlers } from '../lib/customBBHandler.js'
 const bbcparser = new Parser({
@@ -15,9 +15,8 @@ const finalParser = new Parser();
 
 const compBop = reactive({
     title: "",
-    history: {},
-}),
-lastTurn = computed(()=>Object.keys(compBop.history).at(-1));
+    history: [],
+});
 
 const bopData = reactive({
     lastIsProcessing: true,
@@ -29,6 +28,7 @@ const bopData = reactive({
 
 const lt = ref(matchMedia('(prefers-color-scheme: light)').matches ?? false); // jic *something* happens
 
-const players = ref([]);
+const players = ref([]),
+    npcs = ref([]);
 
-export {compBop,lt,bbcparser, players, finalParser, bopData, lastTurn};
+export {compBop,lt,bbcparser, players, npcs, finalParser, bopData};

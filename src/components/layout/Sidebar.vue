@@ -3,11 +3,10 @@
 	import ThemeToggle from "./../atoms/ThemeToggle.vue";
 	import { RouterLink } from "vue-router";
 	const props = defineProps(["logged", "lt"]);
-	import { finishedFirstFetch } from "../../lib/loadTrack";
 </script>
 <template>
 	<div class="sidebar fullwidth rel burntivory flex columnar">
-		<RouterLink to="/" :class="['lonk', finishedFirstFetch ? 'off' : '']">
+		<RouterLink to="/" :class="['lonk']">
 			<div :class="[!logged ? 'active' : '', 'returner']">
 				<div class="title">BoP Tool v2.5</div>
 				<div class="subtitle ovimp">*even more manic cackling</div>
@@ -43,7 +42,7 @@
 		max-height: 100dvh;
 	}
 	.returner {
-		padding: 0.72rem 1rem;
+		padding: 0.55rem 1rem;
 	}
 	.returner .title {
 		font-weight: 500;
@@ -54,10 +53,8 @@
 	.returner.active .title {
 		color: var(--linkcolor);
 	}
-	.lonk {
-		&.off {
-			pointer-events: none;
-		}
+	.lonk.off {
+		pointer-events: none;
 	}
 	.sidebar > *:not(:last-child) {
 		border-bottom-width: 1px;

@@ -1,5 +1,5 @@
 <script setup>
-	import { watch, reactive, ref } from "vue";
+	import { watch } from "vue";
 	import { boppise, finishedFirstFetch } from "../lib/loadTrack.js";
 	import { compBop, bopData } from "../stores/bopstore.js";
 	import { boppeList } from "../stores/authStore.js";
@@ -7,30 +7,20 @@
 	import CountryCollection from "../components/mols/CountryCollection.vue";
 
 	const route = useRoute();
-	compBop.title = "Loading...";
-	boppise(route.params.id).then((r) => {
-		compBop.history = JSON.parse(r.hist);
+
+    const tr = () => boppise(route.params.id, true).then(r=>{
+        compBop.title = "Loading...";
+        bopData.claim = 0;
         bopData.bop = parseInt(route.params.id);
-        compBop.title = boppeList.names[bopData.bop];
-		bopData.turn = Object.keys(compBop.history).at(-1);
-		bopData.lastIsProcessing = r.lastIsProcessing;
-		finishedFirstFetch.value = true;
-		return r;
-	});
-	watch(
-		() => route.params,
-		(newId, oldId) => {
-		    compBop.title = "Loading...";
-			boppise(route.params.id).then((r) => {
-				compBop.history = JSON.parse(r.hist);
-				bopData.bop = parseInt(route.params.id);
-				compBop.title = boppeList.names[bopData.bop];
-				bopData.lastIsProcessing = r.lastIsProcessing;
-				bopData.turn = Object.keys(compBop.history).at(-1);
-				return r;
-			});
-		}
-	);
+        compBop.history = boppeList.plays.find(v => v[0] === bopData.bop).at(-1);
+        compBop.title = `${boppeList.names[bopData.bop]} :: ${compBop.history.at(-1).name}`;
+        bopData.lastIsProcessing = r;
+        bopData.turn = boppeList.plays.find(v => v[0] === bopData.bop).at(-1).number;
+        bopData.player = -1;
+    });
+
+    if (finishedFirstFetch.value === false) watch(() => finishedFirstFetch.value, tr); else tr();
+	watch(() => route.params, tr);
 </script>
 <template>
 	<div>

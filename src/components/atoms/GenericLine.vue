@@ -1,21 +1,10 @@
 <script setup>
-    import { ref, watch, nextTick, onMounted, useTemplateRef, computed } from 'vue';
     const props = defineProps(["si", "sin", "array", "pronomen", "spacing", "rtl", "ccolor", "vertical", "rpad", "nopad"]);
     defineEmits(["selItem"]);
-
-    const filler = computed(()=>[...props.array]);
-    const selled = computed(()=>props.si);
-
-    const div = useTemplateRef("list");
-
-    onMounted(async () => {
-        await nextTick();
-        div.value.scrollTo(props.vertical ? {top: props.rtl !== true ? div.value.offsetHeight : 0} : {left: props.rtl !== true ? div.value.offsetWidth : 0});
-    });
 </script>
 <template>
     <nav ref="list" :class="[props.vertical ? 'vert' : '', props.rpad ? 'rpad' : '', props.nopad ? 'nopad' : '']">
-        <h3 v-for="value, number in filler" :class="[(props.sin === true && selled == number) || selled == value ? 'sel' : '']" @click="$emit('selItem',{value,number})">
+        <h3 v-for="value, number in props.array ?? []" :class="[(props.sin === true && props.si == number) || props.si == value ? 'sel' : '']" @click="()=>$emit('selItem',{value,number})">
         {{ `${props.pronomen || ""}${props.spacing ? " " : ""}${value}` }}
         </h3>
     </nav>

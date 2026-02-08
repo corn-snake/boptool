@@ -12,7 +12,7 @@
 	];*/
 	// ignore that until they fix their shit
 	const props = defineProps(["file", "hostOrder", "pastOrder"]);
-	const toRender=ref("[i]loading...[/i]");
+	const toRender=ref(props.file);
 	const fullHeight = ref(false),
         toggleFullHeight = () => fullHeight.value = !(fullHeight.value);
 	watch(()=>props.file, (nv,ov)=>toRender.value = props.file);

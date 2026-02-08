@@ -1,7 +1,6 @@
 <script setup>
     import { ref } from 'vue';
 	import { isAuth, killLogin, usr } from "../../stores/authStore.js";
-	import Texty from "./../primitives/Texty.vue";
 	import Imagey from "./../primitives/Imagey.vue";
 	import { compBop } from "../../stores/bopstore.js";
 	const props = defineProps(["small"]);

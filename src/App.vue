@@ -91,12 +91,18 @@
 		--linkcolor: #815127;
 		--trcolor: color 0.2s ease-in;
 		--trbg: background-color 0.2s ease-in;
+		--trbd: border-color 0.2s ease-in;
+		--trchroma: var(--trcolor, --trbg, --trbd);
+	}
+	.dt {
+	    --vs-border-color: rgba(204, 204, 204, 0.66);
+		--vs-open-indicator-color: #ccc;
 	}
 	html {
 		font-size: 16px;
 	}
 	* * {
-		transition: var(--trcolor, --trbg);
+		transition: var(--trchroma);
 	}
 	body {
 		margin: 0;
@@ -189,12 +195,13 @@
     	border-color: #eae7e0;
         border-width: 1px;
         border-style: solid;
+        padding: calc(0.6rem - 1px) calc(1.2rem - 1px);
 	}
-	:not(.dt) * {
+	:not(.dt) *, .dt button.eztheme {
 		color: rgba(0, 0, 0, 0.87);
 	}
 	a {
-		transition: var(--trbg, --trcolor), filter 0.2s ease-in;
+		transition: var(--trchroma), filter 0.2s ease-in;
 	}
 	a,
 	a *:not(.ovimp),
@@ -228,8 +235,20 @@
 		font-size: 1rem;
 	}
 	button {
-		transition: var(--trbg), var(--trcolor), border-color 0.25s, filter 0.2s ease-in;
+       	border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        font-family: inherit;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        border: none;
+		transition: var(--trchroma), border-color 0.25s, filter 0.2s ease-in;
 	}
+	button:focus,
+    button:focus-visible {
+        outline: 4px auto -webkit-focus-ring-color;
+    }
 	button:hover {
 		border-color: #9b9300;
 	}
@@ -267,6 +286,13 @@
 			color: #3982bf;
 		}
 	}*/
+	.fit {
+        width: fit-content;
+	}
+	.v-select {
+	    display: inline-block;
+		min-width: 7rem;
+	}
 </style>
 <style scoped>
 	.main.hide {

@@ -3,6 +3,11 @@
   "specifiers": {
     "jsr:@supabase/functions-js@^0.0.0-automated": "0.0.0-jsr-test.1",
     "jsr:@supabase/supabase-js@^2.56.0": "2.93.3",
+    "npm:@aws-sdk/client-s3@^3.980.0": "3.980.0",
+    "npm:@supabase/auth-js@2.93.3": "2.93.3",
+    "npm:@supabase/postgrest-js@2.93.3": "2.93.3",
+    "npm:@supabase/realtime-js@2.93.3": "2.93.3",
+    "npm:@supabase/storage-js@2.93.3": "2.93.3",
     "npm:@supabase/supabase-js@^2.56.0": "2.93.3",
     "npm:@vitejs/plugin-vue@^5.2.4": "5.2.4_vite@6.3.5__picomatch@4.0.2_vue@3.5.16",
     "npm:bulletin-board-code@^1.0.2": "1.0.3",
@@ -23,7 +28,11 @@
     "@supabase/supabase-js@2.93.3": {
       "integrity": "e41bffc124ef8345e4f417b07069563a97803af318473991e63d39b16f979cc1",
       "dependencies": [
-        "jsr:@supabase/functions-js"
+        "jsr:@supabase/functions-js",
+        "npm:@supabase/auth-js",
+        "npm:@supabase/postgrest-js",
+        "npm:@supabase/realtime-js",
+        "npm:@supabase/storage-js"
       ]
     }
   },
@@ -1719,6 +1728,12 @@
         "vue"
       ]
     },
+    "vue3-select@0.1.2_vue@3.5.16": {
+      "integrity": "sha512-mEIpx9CWFzynpUwDpb5YL+CfRXagiMlLscwA8i/QbMfDAwSw3MfFFU1+fInW33KpVnS/QPpxWFh7AwutaUpapw==",
+      "dependencies": [
+        "vue"
+      ]
+    },
     "vue@3.5.16": {
       "integrity": "sha512-rjOV2ecxMd5SiAmof2xzh2WxntRcigkX/He4YFJ6WdRvVUrbt6DxC1Iujh10XLl8xCDRDtGKMeO3D+pRQ1PP9w==",
       "dependencies": [
@@ -1744,6 +1759,7 @@
       "npm:vite@^6.3.5",
       "npm:vue-router@^4.5.0",
       "npm:vue-slide-up-down@3",
+      "npm:vue3-select@~0.1.2",
       "npm:vue@^3.4.21"
     ],
     "packageJson": {
@@ -1757,6 +1773,7 @@
         "npm:vite@^6.3.5",
         "npm:vue-router@^4.5.1",
         "npm:vue-slide-up-down@3",
+        "npm:vue3-select@~0.1.2",
         "npm:vue@^3.5.16"
       ]
     }

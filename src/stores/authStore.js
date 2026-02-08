@@ -1,6 +1,7 @@
 import router from "../router/index.js";
 import {ref,reactive} from 'vue';
 import { compBop } from "./bopstore.js";
+import { finishedFirstFetch } from "./../lib/loadTrack.js"
 
 const lastLoginAttemptStatus = ref(0);
 
@@ -12,11 +13,13 @@ const boppeList=reactive({
 }),
     usr = reactive({
         name: "",
-        pic: ""
+        pic: "",
+        amdin: false
     }),
     voidBoPs = ()=>{
         usr.name = "";
         usr.pic = "";
+        usr.amdin = false;
         boppeList.hosts = [];
         boppeList.chost = [];
         boppeList.plays = [];
@@ -34,10 +37,13 @@ const boppeList=reactive({
     fetchedRefs = async(servoresp)=>{
         usr.name = (await servoresp).usr;
         usr.pic = (await servoresp).pic;
+        usr.amdin = (await servoresp).amdin;
+        boppeList.admins = (await servoresp).bops.admins;
         boppeList.hosts = (await servoresp).bops.hosts;
         boppeList.chost = (await servoresp).bops.chost;
         boppeList.plays = (await servoresp).bops.plays;
-        boppeList.names = Object.fromEntries([...(boppeList.hosts.map(h=>[h[0],h[1]])),...(boppeList.chost.map(c=>[c[0],c[1]])),...(boppeList.plays.map(p=>[p[0],p[1]]))])
+        boppeList.names = Object.fromEntries([...(boppeList.hosts.map(h=>[h[0],h[1]])),...(boppeList.chost.map(c=>[c[0],c[1]])),...(boppeList.plays.map(p=>[p[0],p[1]]))]);
+        finishedFirstFetch.value = true;
     }
 
 const sha512 = (str) => crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str)).then(buf =>
