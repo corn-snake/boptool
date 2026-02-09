@@ -1,9 +1,9 @@
 import router from "../router/index.js";
 import {ref,reactive} from 'vue';
 import { compBop } from "./bopstore.js";
-import { finishedFirstFetch } from "./../lib/loadTrack.js"
 
 const lastLoginAttemptStatus = ref(0);
+const finishedFirstFetch = ref(false);
 
 const boppeList=reactive({
     hosts: [],
@@ -15,6 +15,10 @@ const boppeList=reactive({
         name: "",
         pic: "",
         amdin: false
+    }),
+    list = Object.freeze({
+        mod: 1,
+        bigMod: 2
     }),
     voidBoPs = ()=>{
         usr.name = "";
@@ -53,7 +57,7 @@ const sha512 = (str) => crypto.subtle.digest("SHA-512", new TextEncoder("utf-8")
 const isAuth = ref(await(async()=>{
     if (localStorage.getItem('stamp') == null) return false;
     const proof = await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`);
-    const conf = await fetch(`${location.protocol}//${location.hostname}/api/auth`, {
+    const conf = await fetch(`/api/auth`, {
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body:`["${localStorage.getItem('uname')}","${await proof}"]`
@@ -75,7 +79,7 @@ async function tryAuth(usr,pwd,callback,errorCallback){
         localStorage.setItem("stamp",await sha512(`${rn}+${d}+${usr}`));
         localStorage.setItem("uname",usr);
     }
-    fetch(`${location.protocol}//${location.hostname}/api/login`,{
+    fetch(`/api/login`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body: `["${await uHash}","${await pHash}","${localStorage.getItem("stamp")}"]`
@@ -97,7 +101,7 @@ async function tryAuth(usr,pwd,callback,errorCallback){
 }
 
 function killLogin(callback){
-    fetch(`${location.protocol}//${location.hostname}/api/invalidate`,{
+    fetch(`api/invalidate`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body: localStorage.getItem("stamp")
@@ -111,4 +115,8 @@ function killLogin(callback){
     });
 }
 
-export {isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus};
+const changePwd = async(newPwd)=>fetch("/api/oldPwd", {method: "POST",
+    body:`["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}","${await sha512(newPwd)}"]`
+});
+
+export {list, isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus, finishedFirstFetch, changePwd};

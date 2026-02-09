@@ -1,8 +1,8 @@
 <script setup>
 	import { watch, ref, onMounted, onUnmounted } from "vue";
-	import { boppise, getPlayers, list, playerGetLock } from "../lib/loadTrack.js";
+	import { boppise, getPlayers, playerGetLock } from "../lib/runtimeActs.js";
 	import { compBop, players, bopData } from "../stores/bopstore.js";
-	import { boppeList } from "../stores/authStore.js";
+	import { boppeList, list } from "../stores/authStore.js";
 	import HistoryLine from "../components/atoms/HistoryLine.vue";
 	import GenericLine from "../components/atoms/GenericLine.vue";
 	import { useRoute } from "vue-router";

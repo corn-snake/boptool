@@ -1,8 +1,8 @@
 <script setup>
 	import { watch } from "vue";
-	import { boppise, finishedFirstFetch } from "../lib/loadTrack.js";
+	import { boppise } from "../lib/runtimeActs.js";
 	import { compBop, bopData } from "../stores/bopstore.js";
-	import { boppeList } from "../stores/authStore.js";
+	import { boppeList, finishedFirstFetch } from "../stores/authStore.js";
 	import { useRoute } from "vue-router";
 	import CountryCollection from "../components/mols/CountryCollection.vue";
 

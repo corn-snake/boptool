@@ -1,14 +1,13 @@
 focus: F[1], B[1]
 
 Features:
-    [1] admin panel; that is, game + account creation, so i don't have to do three hashes and a half from "memory"
-    [2] adding/removing players, turns & co-hosts
-    [3] maps, notes
-    [4] amend button
-    [5] formulae & dice
-    [6] pseudo-rich text
-        [6.1] beginners' guide to bbcode
-    [7] edit conflicts
+    [1] adding/removing players, turns & co-hosts
+    [2] maps, notes
+    [3] amend button
+    [4] formulae & dice
+    [5] pseudo-rich text
+        [5.1] beginners' guide to bbcode
+    [6] edit conflicts
 
 FRs:
     [1] markdown/bbcode switch
@@ -37,3 +36,5 @@ Fixed/implemented:
     - local + remote saving, adaptive to files existing locally and remotely
     - (generally) mobile-friendly
     - (generally) motion- accessible
+    - admin panel
+    - password reset while logged in

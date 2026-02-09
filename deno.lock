@@ -1,6 +1,9 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/bytes@^1.0.6": "1.0.6",
+    "jsr:@std/crypto@^1.0.5": "1.0.5",
+    "jsr:@std/uuid@^1.1.0": "1.1.0",
     "jsr:@supabase/functions-js@^0.0.0-automated": "0.0.0-jsr-test.1",
     "jsr:@supabase/supabase-js@^2.56.0": "2.93.3",
     "npm:@aws-sdk/client-s3@^3.980.0": "3.980.0",
@@ -18,10 +21,24 @@
     "npm:vue-router@^4.5.0": "4.5.1_vue@3.5.16",
     "npm:vue-router@^4.5.1": "4.5.1_vue@3.5.16",
     "npm:vue-slide-up-down@3": "3.0.0_vue@3.5.16",
+    "npm:vue3-select@~0.1.2": "0.1.2_vue@3.5.16",
     "npm:vue@^3.4.21": "3.5.16",
     "npm:vue@^3.5.16": "3.5.16"
   },
   "jsr": {
+    "@std/bytes@1.0.6": {
+      "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
+    "@std/crypto@1.0.5": {
+      "integrity": "0dcfbb319fe0bba1bd3af904ceb4f948cde1b92979ec1614528380ed308a3b40"
+    },
+    "@std/uuid@1.1.0": {
+      "integrity": "6268db2ccf172849c9be80763354ca305d49ef4af41fe995623d44fcc3f7457c",
+      "dependencies": [
+        "jsr:@std/bytes",
+        "jsr:@std/crypto"
+      ]
+    },
     "@supabase/functions-js@0.0.0-jsr-test.1": {
       "integrity": "b1b37924af1f0011b4753201e1585a37b030e996c6682492e02575eb27d902b2"
     },
@@ -1750,6 +1767,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/uuid@^1.1.0",
       "jsr:@supabase/supabase-js@^2.56.0",
       "npm:@aws-sdk/client-s3@^3.980.0",
       "npm:@vitejs/plugin-vue@^5.2.4",

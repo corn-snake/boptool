@@ -17,11 +17,6 @@ const load = ref(true),
     makeLoad = () => (load.value = true),
     unLoad = () => (load.value = false);
 
-const list = Object.freeze({
-    mod: 1,
-    bigMod: 2
-});
-
 async function boppise(bid, nh=true) {
     const uname = localStorage.getItem('uname'),
         proof = await sha512(`${uname}+${localStorage.getItem('stamp')}`);
@@ -106,8 +101,6 @@ const getAllBoppers = async() => fetch("/api/boppers", {
     body: `["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`,
 }).then(r=>r.json());
 
-const finishedFirstFetch = ref(false);
-
 const saveLock = ref(0),
     remoteSaveLock = ref(0),
     playerGetLock =  ref(false);
@@ -181,9 +174,22 @@ const createBoP = async(data)=>fetch("/api/createBoP", {method: "POST", body:JSO
         players: data.players,
         npcs: data.npcs
     }
-})}).then(async (r)=>{if(r.status === 201) console.log(`created game # ${await r.text()} "${data.name}!"`); else console.error(await r.text()); return r}).catch(e=>alert(e));
+})}).then(async (r)=>{if(r.status === 201) console.log(`created game # ${await r.text()} "${data.name}!"`); else console.error(await r.text()); return r}).catch(e=>alert(e)),
 
-const reloadData = async()=>fetch(`${location.protocol}//${location.hostname}/api/auth`, {
+createUser = async(tomake, pwd)=>fetch("/api/createAcc", {method: "POST", body:JSON.stringify({
+    user: [localStorage.getItem("uname"), await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`)],
+    tomake: {...tomake, pwdHash: await sha512(pwd)}
+})}).then(async (r)=>{if(r.status === 201) console.log(`created user ${await r.text()}!`); else console.error(await r.text()); return r}).catch(e=>alert(e)),
+
+resetPwd = async(data)=>fetch("/api/newPwd", {method: "POST", body:JSON.stringify({
+    user: [localStorage.getItem("uname"), await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`)],
+    target: {
+        uid: data.uid,
+        pwdHash: await sha512(data.pwd)
+    }
+})}).then(async (r)=>{if(r.status === 200) console.log(`changed user pwd successfully!`); else console.error(await r.text()); return r}).catch(e=>alert(e));
+
+const reloadData = async()=>fetch("api/auth", {
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body:`["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`
@@ -199,4 +205,4 @@ const reloadData = async()=>fetch(`${location.protocol}//${location.hostname}/ap
 // bid,turn,player
 // ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${unameSel}>]
 
-export {load, makeLoad, unLoad, boppise, fileget, finishedFirstFetch, getPlayers, getAllBoppers, list, players, saveFileLocal, saveLock, saveFileRemote, remoteSaveLock, playerGetLock, createBoP, reloadData};
+export {load, makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveLock, saveFileRemote, remoteSaveLock, playerGetLock, createBoP, reloadData, createUser, resetPwd};

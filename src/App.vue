@@ -2,8 +2,9 @@
 	import Sidebar from "./components/layout/Sidebar.vue";
 	import Heady from "./components/layout/Heady.vue";
 	import { ref, onMounted, onUnmounted } from "vue";
-	import { load, makeLoad, unLoad } from "./lib/loadTrack.js";
+	import { load, makeLoad, unLoad } from "./lib/runtimeActs.js";
 	import { lt } from "./stores/bopstore.js";
+import ChangePassword from "./components/atoms/ChangePassword.vue";
 	const overrides = ref(document.getElementById("app").offsetWidth < 601),
 	    showSide = ref(document.getElementById("app").offsetWidth > 501),
 		logged = ref(false),
@@ -54,26 +55,7 @@
 		<router-view class="disp"></router-view>
 	</main>
 	<dialog id="pwdReset" v-if="!logged" :open="pwdDialog">
-		<form>
-			<fieldset class="flex columnar">
-				<legend>Password reset</legend>
-				<label for="newPwd">Type in new password:&nbsp;</label
-				><input type="password" name="newPwd" id="newPwd" />
-				<label for="pwdConf">Confirm:&nbsp;</label
-				><input type="password" name="pwdConf" id="pwdConf" />
-				<button
-					class="submitter"
-					@click="
-						(e) => {
-							e.preventDefault();
-							pwdDialogClose();
-						}
-					"
-				>
-					Submit
-				</button>
-			</fieldset>
-		</form>
+	    <ChangePassword @done="pwdDialogClose"/>
 	</dialog>
 </template>
 

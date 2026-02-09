@@ -1,6 +1,7 @@
 <script setup>
 	import { bopData, lt, players, compBop } from "../../stores/bopstore.js";
-	import { fileget, saveFileLocal, saveFileRemote, saveLock, remoteSaveLock, getPlayers, list, finishedFirstFetch, playerGetLock } from "../../lib/loadTrack.js";
+	import { finishedFirstFetch, list } from "../../stores/authStore.js";
+	import { fileget, saveFileLocal, saveFileRemote, saveLock, remoteSaveLock, getPlayers, playerGetLock } from "../../lib/runtimeActs.js";
 	import { watch, ref, computed } from "vue";
 	import RenderPanel from "./RenderPanel.vue";
 	import RenderEditable from "./RenderEditable.vue";
