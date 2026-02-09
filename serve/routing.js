@@ -394,22 +394,41 @@ const routing = (new Router({dev}))
                 "Access-Control-Allow-Origin": '*'
         }});
     })
-    .post("/reqchange", async(req,res)=>{
+    .post("/reqChange", async(req,res)=>{
         // ["uhash", "email"]
         const a = dev ? req.body : await(await req).json();
-        const b = await sb.schema("bop_userdata").from("ud").select("uid").eq("uhash", a[0]).eq("email", a[1]);
+        if (!Array.isArray(await a) || (await a).length !== 2 || (await a).reduce((ac, c) => ac + c.length, 0) !== 128 * 2)
+            if (dev) {
+                res.status = 400;
+                return res.end("payload length is wrong.");
+            }
+            else
+            return new Response('payload length is wrong.', {
+                status: 400,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }
+            });
+        const b = await sb.schema("bop_userdata").from("ud").select("uid,email").eq("uhash", a[0]);
         if (b.data.length < 1)
             if (dev) {
                 res.status = 404;
                 return res.end("user does not exist.");
             } else
             return custom404('user does not exist.');
-        const c = await setNewPwd(b.data[0].uid);
+        if (await sha512(b.data[0].email) !== a[1])
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        const c = await setNewPwd(b.data[0].uid, b.data[0].email);
         if (c === false)
             if (dev) {
                 res.status = 202;
-                return res.end("You'll receive an email with a new password soon! When it arrives, change it as soon as possible.");
-            } else return new Response("You'll receive an email with a new password soon! When it arrives, change it as soon as possible.", {
+                return res.end("You'll receive an email (!from boptool@cornsnake.fyi!) with a new password soon! When it arrives, change it as soon as possible.");
+            } else return new Response("You'll receive an email (!from boptool@cornsnake.fyi!) with a new password soon! When it arrives, change it as soon as possible.", {
                 status: 202,
                 headers: {
                     "Access-Control-Allow-Origin": '*'

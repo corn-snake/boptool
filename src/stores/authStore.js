@@ -117,6 +117,9 @@ function killLogin(callback){
 
 const changePwd = async(newPwd)=>fetch("/api/oldPwd", {method: "POST",
     body:`["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}","${await sha512(newPwd)}"]`
+}),
+requestReset = async(uname,email)=>fetch("/api/reqChange", {method: "POST",
+    body: `["${await sha512(uname)}", "${await sha512(email)}"]`
 });
 
-export {list, isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus, finishedFirstFetch, changePwd};
+export {list, isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus, finishedFirstFetch, changePwd, requestReset};

@@ -3,8 +3,28 @@ once that's done, go back & run `deno task sdev`, open another commandline windo
 
 ---
 
-the deno server connects to a supabase instance and an r2 bucket to hold all of the state data; these can in theory be replaced with more consolidated interfaces to a local postgres server and file read/write calls should server resources not be concerns.
-there are, at present, five database functions the server calls through RPC of to offload some more expensive processing. these are:
+## external services
+the deno server connects to a supabase instance and an r2 bucket to hold all of the state data; these can in theory be replaced with more consolidated interfaces to a local postgres server and file read/write calls should server resources not be concerns. further, an email service is configured elsewhere to provide user password self-reset functionality
+
+### database
+the structure of the database is divided into two schemata, `bop_bopdata` and `bop_userdata`.
+
+#### `bop_userdata`
+...has 2 tables:
+- `ud` has seven columns: `uid` (of type uuid, non-nullable, primary), `uname` (text, non-nullable, unique), `uhash` (text, non-nullable), which ideally is a computed sha512 hash of `uname` and thus constricted to 128 characters of length (as all other hash-columns henceforth), `sfhash` (text, non-nullable), `forumpic` (text), `amdin` (boolean, non-nullable, default false), & `email` (text, unique)
+- `logins` has `tknhash` (text, prim.), `uid` (uuid, non-nullable, fkey->bop_userdata.ud.uid), & `expires` (int8, non-nullable), this last one being a timestamp in JS format
+
+#### `bop_bopdata`
+there are three tables here:
+- `bops` has `id` (int8, prim.), `name` (text, non-nullable), & `icon` (text, non-nullable)
+- `turns` has `bid` (int8, prim., fkey->bop_bopdata.bops.id), `number` (int8, non-nullable, prim.), `host` (uuid, non-nullable, fkey->bop_userdata.ud.uid), `chosts` (uuid[], ideally each element fkey->bop_userdata.ud.uid), `players` (jsonb[], non-nullable, def. `[]`), `npcs` (text[]) & `processing` (boolean, non-nullable, def. `false`)
+  - `players`, in practice, also has a particular structure: `uid` (uuid, ditto ideal fkey->bop_userdata.ud.uid) & `name` (text), though this is mainly a check of the database functions (see below) & the interface rather than a hard-coded thing
+- `file_ts` has `file` (text, prim.) & `at` (int8, non-nullable)
+
+additionally there can, and oftentimes should, exist a table `pwdRequests` (consisting of a single uuid, primary column `uid`, fkey->bop_userdata.ud.uid) to keep unfulfilled password requests, & in the case of public instances `accountRequests`, holding requests made by other users for the registration of new ones (with columns `by` \[uuid, primary, fkey->bop_userdata.ud.uid], & `requesting` \[jsonb[], non-nullable; inner structure `uname` {text, non-nullable, unique} & `email` {text, nullable, unique}])
+
+#### functions
+there are, at present, five database such that the server calls through RPC, in order to to offload some more expensive processing steps and reduce the number of network trips. these are:
 ```sql
 CREATE OR REPLACE FUNCTION bop_bopdata."getUserBops"(uid uuid)
   RETURNS json
@@ -103,4 +123,58 @@ create or replace function bop_bopdata."getTurnPlayers"(bn int, tn int)
   $$ language plpgsql;
 ```
 
-the structure of the database is divided into two schemata, `bop_bopdata` and `bop_userdata`.
+#### file
+an `../sb/sb.js` file, relative to the deno entrypoint, should export an initialised sb client, such that:
+```js
+import { createClient } from '@supabase/supabase-js';
+
+const sb = createClient(INSTANCE_URL, SECRET_TOKEN);
+
+export default sb;
+```
+
+### R2
+...which uses the S3 API and thus can be accessed via such libraries.
+
+#### file
+similarly to the supabase client, an `../r2/r2.js` file should export an initialised client, such that:
+```js
+import {
+  S3Client,
+} from "npm:@aws-sdk/client-s3";
+
+const r2 = new S3Client({
+  region: "auto",
+  endpoint: API_URL,
+  credentials: {
+    accessKeyId: ACCESS_KEY,
+    secretAccessKey: SECRET_ACCESS_KEY,
+  },
+});
+
+export default r2;
+```
+
+### email
+a send-only SMTP configuration should suffice. somewhat differently than before, `../email/email.js` is expected only to produce a single *function* that connects to an API for the server's send trigger, though a client may be configured if needed:
+```js
+import sb from "../sb/sb.js";
+import { sha512 } from "./../lib/dbfunctions.js"
+
+const receiver = EMAIL_API_URL,
+    secret = EMAIL_SECRET;
+const setNewPwd = (uid,email)=>fetch(receiver, {
+    method: "POST",
+    body: `["${email}", "${secret}"]`
+}).then(async(r)=>{
+    if(r.status !== 201)
+        throw new Error("Failed to send email! Adding to backlog...");
+    await sb.schema("bop_userdata").from("ud").update({ sfhash: await sha512(`${uid}+${await r.text()}`) }).eq("uid",uid);
+    return true;
+}).catch(async()=>{
+    await sb.schema("bop_userdata").from("pwdRequests").upsert({uid}, {ignoreDuplicates: false});
+    return false;
+});
+
+export default setNewPwd;
+```

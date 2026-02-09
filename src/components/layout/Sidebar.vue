@@ -21,7 +21,6 @@
 					$emit('asknewpwd');
 				}
 			"
-			v-if="!logged"
 			><i>Change password</i>
 		</a>
 		<ThemeToggle :lt="lt" @noon="() => $emit('noon')" />

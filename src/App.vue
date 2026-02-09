@@ -4,10 +4,11 @@
 	import { ref, onMounted, onUnmounted } from "vue";
 	import { load, makeLoad, unLoad } from "./lib/runtimeActs.js";
 	import { lt } from "./stores/bopstore.js";
-import ChangePassword from "./components/atoms/ChangePassword.vue";
+    import ChangePassword from "./components/atoms/ChangePassword.vue";
+    import RequestNewPassword from "./components/atoms/RequestNewPassword.vue";
+    import { isAuth } from "./stores/authStore.js";
 	const overrides = ref(document.getElementById("app").offsetWidth < 601),
 	    showSide = ref(document.getElementById("app").offsetWidth > 501),
-		logged = ref(false),
 		pwdDialog = ref(false);
 	const showUnshow = () => (showSide.value = !showSide.value),
 		pureHide = () => {
@@ -31,7 +32,7 @@ import ChangePassword from "./components/atoms/ChangePassword.vue";
 
 <template>
 	<Sidebar
-		:logged="logged"
+		:logged="isAuth"
 		:class="{ on: showSide, off: !showSide, dt: !lt }"
 		:lt="lt"
 		@toooogle="showUnshow"
@@ -52,10 +53,11 @@ import ChangePassword from "./components/atoms/ChangePassword.vue";
 		@click="pureHide"
 	>
 		<Heady @hideShow="showUnshow" @loading="makeLoad" @loaded="unLoad" :small="showSide" />
-		<router-view class="disp"></router-view>
+		<router-view></router-view>
 	</main>
-	<dialog id="pwdReset" v-if="!logged" :open="pwdDialog">
-	    <ChangePassword @done="pwdDialogClose"/>
+	<dialog id="pwdReset" :open="pwdDialog">
+	    <ChangePassword v-if="isAuth" @done="pwdDialogClose"/>
+	    <RequestNewPassword v-if="!isAuth" @done="pwdDialogClose" />
 	</dialog>
 </template>
 

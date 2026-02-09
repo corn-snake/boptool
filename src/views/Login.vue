@@ -1,40 +1,41 @@
 <script setup>
 	import { ref, reactive } from "vue";
 	import { tryAuth, lastLoginAttemptStatus } from "../stores/authStore.js";
-	const ralive = reactive({
-			user: false,
-			pwd: false,
-			spwd: false,
-		}),
-	    whatWrong = ref(-1),
-		wrong = (n)=>whatWrong.value = n,
-		buttonAlive = ref(false),
-		buttonBreathing = ref(false),
-		rvals = reactive({
-			usr: "",
-			pwd: "",
-		}),
-		buttonCheck = () => {
-		    buttonAlive.value = ralive.pwd && ralive.user;
-			wrong(-1);
-		},
-		checkUser = (v) => {
-			v.value.length > 0 ? (ralive.user = true) : (ralive.user = false);
-			buttonCheck();
-		},
-		checkPwd = (v) => {
-			v.value.length > 7 ? (ralive.pwd = true) : (ralive.pwd = false);
-			buttonCheck();
-		},
-		checkPwdSimple = (v) => {
-			v.value.length > 0 ? (ralive.spwd = true) : (ralive.spwd = false);
-			buttonCheck();
-		},
-		breathe=()=>buttonBreathing.value = true,
-		gasp = ()=>buttonBreathing.value = false;
+
+    const ralive = reactive({
+        user: false,
+        pwd: false,
+        spwd: false,
+    }),
+    whatWrong = ref(-1),
+    wrong = (n) => whatWrong.value = n,
+    buttonAlive = ref(false),
+    buttonBreathing = ref(false),
+    rvals = reactive({
+        usr: "",
+        pwd: "",
+    }),
+    buttonCheck = () => {
+        buttonAlive.value = ralive.pwd && ralive.user;
+        wrong(-1);
+    },
+    checkUser = (v) => {
+        v.value.length > 0 ? (ralive.user = true) : (ralive.user = false);
+        buttonCheck();
+    },
+    checkPwd = (v) => {
+        v.value.length > 7 ? (ralive.pwd = true) : (ralive.pwd = false);
+        buttonCheck();
+    },
+    checkPwdSimple = (v) => {
+        v.value.length > 0 ? (ralive.spwd = true) : (ralive.spwd = false);
+        buttonCheck();
+    },
+    breathe = () => buttonBreathing.value = true,
+    gasp = () => buttonBreathing.value = false;
 </script>
 <template>
-	<form class="login-form">
+	<form class="login-form disp">
 		<div :class="['input-wrap', whatWrong === 1 ? 'wrong' : '', { on: ralive.user }]">
 			<label for="username">Username</label
 			><input
