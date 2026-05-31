@@ -1,7 +1,5 @@
-focus: F[1], B[1]
-
 Features:
-    [1] adding/removing players, turns & co-hosts
+    [1] turn rollover
     [2] maps, notes
     [3] amend button
     [4] formulae & dice
@@ -13,6 +11,7 @@ FRs:
     [1] markdown/bbcode switch
     [2] in-code comments (// token will stop stuff in front of it from displaying, /* */ tkn pairs constitute block-level comments)
     [3] user styling
+    [4] auto turn rollover
 
 Delayed until further notice:
     [?] single-port server
@@ -38,3 +37,4 @@ Fixed/implemented:
     - (generally) motion- accessible
     - admin panel
     - password reset while logged in
+    - host can change players, npcs and cohosts

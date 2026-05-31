@@ -1,12 +1,13 @@
 <script setup>
 	import { watch, ref, onMounted, onUnmounted } from "vue";
-	import { boppise, getPlayers, playerGetLock } from "../lib/runtimeActs.js";
-	import { compBop, players, bopData } from "../stores/bopstore.js";
-	import { boppeList, list } from "../stores/authStore.js";
-	import HistoryLine from "../components/atoms/HistoryLine.vue";
-	import GenericLine from "../components/atoms/GenericLine.vue";
+	import { boppise } from "../../lib/runtimeActs.js";
+	import { compBop, players, bopData } from "../../stores/bopstore.js";
+	import { boppeList, list } from "../../stores/authStore.js";
+	import HistoryLine from "../atoms/HistoryLine.vue";
+	import GenericLine from "../atoms/GenericLine.vue";
 	import { useRoute } from "vue-router";
-	import CountryCollection from "../components/mols/CountryCollection.vue";
+	import CountryCollection from "../mols/CountryCollection.vue";
+	import EditPeople from "../atoms/EditPeople.vue";
 
 	defineOptions({
         inheritAttrs: false
@@ -16,6 +17,7 @@
     plyrstrs = ref([]);
 
 	compBop.title = "Loading...";
+	bopData.country = "";
 	bopData.claim = list[route.params.claim];
 	boppise(route.params.id).then((r) => {
 		compBop.history = r.hist;
@@ -23,16 +25,13 @@
 		compBop.title = boppeList.names[bopData.bop];
 		bopData.lastIsProcessing = r.lastIsProcessing;
 		bopData.turn = compBop.history.at(-1);
-		playerGetLock.value = true;
 		return r;
-	}).then(r=> getPlayers(route.params.id, bopData.turn, list[route.params.claim])).then(({pcs, npcs}) => {
-   	    players.value = pcs;
-        playerGetLock.value = false;
-    });
+	});
 	watch(
 		() => route.params,
 		(newId, oldId) => {
 		    compBop.title = "Loading...";
+			bopData.country = "";
 			bopData.claim = list[route.params.claim];
     		boppise(route.params.id).then((r) => {
                 compBop.history = r.hist;
@@ -57,8 +56,10 @@
 <template>
 	<HistoryLine :st="bopData.turn" class="pt" @selTurn="n=>bopData.turn = n" />
 	<div :class="wwidth >= 600 ? 'sideselect' : 'withtopselect'">
-		<GenericLine :array="plyrstrs" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p =>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
-			class="cl fwn" />
+		<GenericLine :array="plyrstrs" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p => { bopData.player = p.number;  bopData.country = players[p.number].name}" :sin="true" :nopad="wwidth >= 600 ? false : true"
+			class="cl fwn">
+			<EditPeople v-if="bopData.claim === 2 && bopData.turn === compBop.history.at(-1)"/>
+		</GenericLine>
 		<!-- GenericLine :array="npcs" :si="bopData.npc" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p =>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
 			class="cl fwn" /-->
 		<CountryCollection :strip="true" class="cc" :bindToPlayer="true" />

@@ -1,6 +1,6 @@
-import { fetchBops, fetchBoPStuff, fetchTurnPlayers } from './../lib/bopfunctions.js';
-import { validateUser, killLogin, sha512, validateBopStanding, makeUser, changePwd } from './../lib/dbfunctions.js';
-import { custom404, small403, Router } from './../lib/miscellanea.js';
+import { fetchBops, fetchBoPStuff, fetchTurnPlayers, getTruePrivillege, isMod, validateBopStanding } from './../lib/bopfunctions.js';
+import { validateUser, killLogin, sha512, makeUser, changePwd } from './../lib/dbfunctions.js';
+import { custom404, custom403, small403, Router } from './../lib/miscellanea.js';
 import { callR2, sendR2 } from './../lib/filefunctions.js';
 import sb from './../sb/sb.js';
 import setNewPwd from "../email/email.js";
@@ -176,7 +176,7 @@ const routing = (new Router({dev}))
     })
     .put("/file", async (req, res) =>{
         const fd = dev ? req.body : await(await req).formData();
-        // ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${player}>, ${prospectiveTimeStamp}]
+        // ["${uname}","${await proof}",${bid},${turn},${claim}, ${type}<, ${player}>, ${prospectiveTimeStamp}]
         const b = [fd.get("uname"), fd.get("proof"), fd.get("bid"), fd.get("turn"), fd.get("claim"), fd.get("type"), fd.get("player")],
             prosTimestamp = fd.get("at"),
             newTimestamp = fd.get("newAt");
@@ -252,25 +252,135 @@ const routing = (new Router({dev}))
             else
             return small403();
 
+        const d = await fetchTurnPlayers(c,b[2], b[3]);
+
+        if (d === false)
+            if (dev) {
+                res.status = 403;
+                res.end("not registered as (co-)host. if you believe this to be an error, contact your bophost. if you are said bophost, contact an admin")
+            } else return custom403("not registered as (co-)host. if you believe this to be an error, contact your bophost. if you are said bophost, contact an admin");
+
         if (dev)
-            return res.end(await fetchTurnPlayers(c,b[2], b[3]))
-        return new Response(await fetchTurnPlayers(c, b[2], b[3]), {status: 200, headers: {
+            return res.end(d);
+        return new Response(d, {status: 200, headers: {
             "Access-Control-Allow-Origin": '*'
         }});
     })
-    .post("/boppers",async(req,res)=>{
-        // ["${uname}","${await proof}"]
+    .post("/newTurn", async(req,res)=>{
+        // {user, turndata}
+        // user: ["${uname}","${await proof}", bid, turn]
+        // turndata: { "chosts"[]?, players[{"uid", "name"}], "npcs"[]? }
         const b = dev ? req.body : await(await req).json();
-        const c = await validateUser(await b);
-        if (c === false || (c && c.amdin === false))
+        const c = await validateUser(b.user);
+        if (c === false)
             if (dev) {
                 res.status = 403;
                 return res.end("failed to verify.");
             }
             else return small403();
 
-        const d = await sb.schema("bop_userdata").from("ud").select("uname,uid").order("uname", {ascending: true}),
-            e = JSON.stringify(d.data);
+        const d = await getTruePrivillege(b[2], c.uid);
+        if (d < 1)
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        const e = await sb.schema("bop_bopdata").from("turns").insert({...(b.turndata), number: b.turndata.number + 1, processing: true}).select("number");
+        if (e.error !== null)
+            if (dev) {
+                res.status = 500;
+                return res.end(JSON.stringify(e.error))
+            } else return new Response(JSON.stringify(e.error), {
+                status: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+
+        if (dev) {
+            res.status = 201;
+            return res.end(e.data[0].number);
+        }
+        return new Response(`${e.data[0].number}`, {
+            status: 201,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }});
+    })
+    .post("/updateBoppers", async(req,res)=>{
+        // {user, players, npcs, chosts}
+        // user: ["${uname}","${await proof}", bid, turn]
+        // players: [{number?, "uname","name"}]
+        // chosts: ["uname"]
+        // npcs: [{number?, "name"}]
+        const b = dev ? req.body : await(await req).json();
+        const c = await validateUser(b.user);
+        if (c === false)
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        const d = await isMod(b.user[2], c.uid);
+        if (d < 1)
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        if (b.players == undefined && b.chosts === undefined && b.npcs !== undefined)
+            if (dev) {
+                res.status = 304;
+                return res.end("ough!");
+            }
+            else return new Response("ough!", {
+                status: 304,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+
+        let mn = Math.max(b.players.reduce((cn,p)=>(p.number ?? 0) > cn ? p.number : cn,0),b.npcs.reduce((cn,p)=> (p.number ?? 0) > cn ? p.number : cn,0));
+        const fx_players = b.players.map(p=>(p.number ?? false) ? p : {...p, number: mn += 1}),
+            fx_npcs = b.npcs.map(p=>(p.number ?? false) ? p : {...p, number: mn += 1}),
+            entities = JSON.stringify(fx_players.concat(fx_npcs));
+
+        const e = await sb.schema("bop_bopdata").rpc("updateBoppers", {bn: b.user[2], tn: b.user[3], chs: JSON.stringify(b.chosts), entities});
+        if (e.error !== null)
+            if (dev) {
+                res.status = 500;
+                return res.end(JSON.stringify(e.error))
+            } else return new Response(JSON.stringify(e.error), {
+                status: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+
+        if (dev) {
+            res.status = 200;
+            return res.end();
+        }
+        return new Response(null, {
+            status: 200,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }});
+    })
+    .post("/boppers",async(req,res)=>{
+        // ["${uname}","${await proof}"]
+        const b = dev ? req.body : await(await req).json();
+        const c = await validateUser(await b);
+        if (c === false)
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+
+        const d = await sb.schema("bop_userdata").from("ud").select(`uname${c.amdin ? ",uid" : ""}`).order("uname", {ascending: true}),
+            e = c.amdin ? JSON.stringify(d.data) : JSON.stringify(d.data.map(u=>u.uname));
         if (dev)
             return res.end(e)
         return new Response(e, {status: 200,

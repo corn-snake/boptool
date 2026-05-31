@@ -2,11 +2,13 @@
     import { ref } from 'vue';
 	import { isAuth, killLogin, usr } from "../../stores/authStore.js";
 	import Imagey from "./../primitives/Imagey.vue";
-	import { compBop } from "../../stores/bopstore.js";
+	import { bopData, compBop } from "../../stores/bopstore.js";
+	import { useRouter } from 'vue-router';
 	const props = defineProps(["small"]);
 	const buttonBreathing = ref(false),
 	breathe = ()=>buttonBreathing.value = true,
 	gasp = ()=>buttonBreathing.value = false;
+	const router = useRouter();
 </script>
 <template>
 	<header class="flex fullwidth burntivory fwshadow">
@@ -22,7 +24,7 @@
 			<i class="mdi mdi-menu"></i>
 		</button>
 		<span class="bopname" v-if="props.small && compBop.title.length > 0">
-		    {{ compBop.title }}
+		    {{ compBop.title }} :: {{ bopData.country }}
 		</span>
 		<div class="user">
 			<Imagey v-show="usr.pic.length > 0" :reffed="usr.pic" class="userpic" />
@@ -39,6 +41,7 @@
 					killLogin(() => {
 					    gasp();
 					    $emit('loaded');
+                        router.push('/login');
 					});
 				}
 			"

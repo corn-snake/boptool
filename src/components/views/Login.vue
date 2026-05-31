@@ -1,6 +1,7 @@
 <script setup>
 	import { ref, reactive } from "vue";
-	import { tryAuth, lastLoginAttemptStatus } from "../stores/authStore.js";
+	import { tryAuth, lastLoginAttemptStatus } from "../../stores/authStore.js";
+	import { useRouter } from "vue-router";
 
     const ralive = reactive({
         user: false,
@@ -33,6 +34,7 @@
     },
     breathe = () => buttonBreathing.value = true,
     gasp = () => buttonBreathing.value = false;
+    const router = useRouter();
 </script>
 <template>
 	<form class="login-form disp">
@@ -71,11 +73,11 @@
 					e.preventDefault();
 					$emit('loading');
 					breathe();
-					tryAuth(rvals.usr, rvals.pwd, ()=>$emit('loaded'), () => {
+                    tryAuth(rvals.usr, rvals.pwd, () => { $emit('loaded'); router.push('/')}, () => {
 					    gasp();
 						$emit('loaded');
-						if (lastLoginAttemptStatus == 404) wrong(1);
-						if (lastLoginAttemptStatus == 403) wrong(2);
+						if (lastLoginAttemptStatus == 404) return wrong(1);
+						if (lastLoginAttemptStatus == 403) return wrong(2);
 					})
 				}
 			"

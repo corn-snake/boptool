@@ -1,9 +1,8 @@
-import router from "../router/index.js";
 import {ref,reactive} from 'vue';
-import { compBop } from "./bopstore.js";
+import { bopData, compBop } from "./bopstore.js";
+import { finishedFirstFetch } from "./bellsandwhistles.js";
 
 const lastLoginAttemptStatus = ref(0);
-const finishedFirstFetch = ref(false);
 
 const boppeList=reactive({
     hosts: [],
@@ -29,6 +28,7 @@ const boppeList=reactive({
         boppeList.plays = [];
         boppeList.names = {};
         compBop.title = "";
+        bopData.country = "";
         /*
             plays array: each element is a further array, such that:
                 0: bop id
@@ -96,12 +96,11 @@ async function tryAuth(usr,pwd,callback,errorCallback){
         login();
         callback();
         fetchedRefs(rt);
-        router.push("/");
     });
 }
 
 function killLogin(callback){
-    fetch(`api/invalidate`,{
+    fetch(`/api/invalidate`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body: localStorage.getItem("stamp")
@@ -110,7 +109,6 @@ function killLogin(callback){
         if(r.status == 204) {
             localStorage.clear();
             logout(); voidBoPs();
-            router.push('/login');
         }
     });
 }
@@ -122,4 +120,4 @@ requestReset = async(uname,email)=>fetch("/api/reqChange", {method: "POST",
     body: `["${await sha512(uname)}", "${await sha512(email)}"]`
 });
 
-export {list, isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus, finishedFirstFetch, changePwd, requestReset};
+export {list, isAuth, tryAuth, killLogin, boppeList, usr, sha512, lastLoginAttemptStatus, changePwd, requestReset};

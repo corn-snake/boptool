@@ -4,8 +4,8 @@ import App from './App.vue'
 import router from './router/index.js'
 import {isAuth} from './stores/authStore.js';
 import SlideUpDown from 'vue-slide-up-down';
-import VSelect from 'vue3-select';
-import 'vue3-select/dist/vue3-select.css'
+import VSelect from 'vs-vue3-select';
+import 'vs-vue3-select/dist/vs-vue3-select.css';
 
 router.beforeEach((to)=>{
     if (!isAuth.value && to.name !== "Login") return {name:'Login'};

@@ -23,12 +23,12 @@ const bopData = reactive({
     player: -1,
     bop: -1,
     turn: -1,
-    claim: 0
+    claim: 0,
+    country: ""
 });
 
-const lt = ref(matchMedia('(prefers-color-scheme: light)').matches ?? false); // jic *something* happens
-
 const players = ref([]),
-    npcs = ref([]);
+    nonplayables = ref([]),
+    cohosters = ref([]);
 
-export {compBop,lt,bbcparser, players, npcs, finalParser, bopData};
+export {compBop, bbcparser, players, nonplayables, finalParser, bopData, cohosters};

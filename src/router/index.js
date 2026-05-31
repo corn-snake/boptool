@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router"
-import Login from '../views/Login.vue'
-import Landing from "../views/Landing.vue";
-import Ndända from "../views/Ndända.vue"
-import Noble from "../views/Noble.vue";
-//import Micromanager from "../views/Micromanager.vue";
-import MainFrame from "../views/MainFrame.vue";
+import Login from '../components/views/Login.vue'
+import Landing from "../components/views/Landing.vue";
+import Ndända from "../components/views/Ndända.vue"
+import Noble from "../components/views/Noble.vue";
+import MainFrame from "../components/views/MainFrame.vue";
 
 const routes = [
     {

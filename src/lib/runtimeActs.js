@@ -1,6 +1,6 @@
-import { ref } from "vue";
 import { sha512, usr } from "../stores/authStore.js";
 import { players } from "../stores/bopstore.js";
+import { load, saveLock, remoteSaveLock, editingPeople, pwdDialog, showSide, lt, overrides } from "../stores/bellsandwhistles.js";
 
 const setupTsDb = () => new Promise((resolve, reject) => {
     const tsdb_req = window.indexedDB.open("timestamps", 1);
@@ -13,8 +13,7 @@ const setupTsDb = () => new Promise((resolve, reject) => {
     tsdb_req.onsuccess = e => resolve(e.target.result);
 });
 
-const load = ref(true),
-    makeLoad = () => (load.value = true),
+const makeLoad = () => (load.value = true),
     unLoad = () => (load.value = false);
 
 async function boppise(bid, nh=true) {
@@ -23,7 +22,7 @@ async function boppise(bid, nh=true) {
     return await fetch(`/api/bop`,{
         "Access-Control-Allow-Origin": '*',
         method: "POST",
-        body: `["${uname}","${proof}","${bid}", ${nh}]`,
+        body: `["${uname}","${proof}",${bid}, ${nh}]`,
     }).then(r=>r.json());
 }
 
@@ -33,7 +32,7 @@ async function getPlayers(bid, turn, claim=1) {
     return await fetch(`/api/bopPeople`, {
         "Access-Control-Allow-Origin": '*',
         method: "POST",
-        body: `["${uname}","${proof}","${bid}","${turn}",${claim}]`,
+        body: `["${uname}","${proof}",${bid},${turn},${claim}]`,
     }).then(r => r.json());
 }
 
@@ -66,7 +65,7 @@ const getFileLocal = async (bid, turn, player, type) => {
         const playerDirHandle = await opfsRoot.getDirectoryHandle(usr.name);
         const directoryHandle = await playerDirHandle.getDirectoryHandle(bid);
         const orders = await directoryHandle.getFileHandle(
-            `${type}${turn}${player > 0 ? "p" + player : ""}`,
+            `${type}${turn}p${player}`,
         );
         const ordersF = await orders.getFile();
         return await ordersF.text();
@@ -90,7 +89,7 @@ async function fileget(bid, turn, claim=0, player, type) {
         method: "POST",
         body: `["${uname}","${proof}",${bid},${turn},${claim}, "${type}"${claim > 0 ? ', ' + player : ""}]`,
     }).then(r => r.formData()).then(fd=>{
-        setOgTimestamp(`${bid}/${type}${turn}${claim > 0 ? "p" + player : ""}`, fd.get("at"));
+        setOgTimestamp(`${bid}/${type}${turn}p${player}`, fd.get("at"));
         return fd.get("file");
     });
 }
@@ -100,10 +99,6 @@ const getAllBoppers = async() => fetch("/api/boppers", {
     method: "POST",
     body: `["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`,
 }).then(r=>r.json());
-
-const saveLock = ref(0),
-    remoteSaveLock = ref(0),
-    playerGetLock =  ref(false);
 
 const saveFileLocal = (bid, turn, player, type) => (event) => {
     const f = async (evn) => {
@@ -117,13 +112,13 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
                 { create: true },
             ); // one folder per bop (bid)
             const orders = await directoryHandle.getFileHandle(
-                `${type}${turn}${player > 0 ? "p" + player : ""}`,
+                `${type}${turn}p${player}`,
                 { create: true },
             ); // naming a specific file per type (card, order, report) + turn + player
             const ordersWr = await orders.createWritable();
             await ordersWr.write(evn.target.value);
             await ordersWr.close();
-            await setTimestamp(`${usr.name}/${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`, Date.now());
+            await setTimestamp(`${usr.name}/${bid}/${type}${turn}p${player}`, Date.now());
         } catch (e) {
             alert(`Something happened while saving!\n\nThe following is the error log:\n${e}`)
         } finally {
@@ -144,8 +139,8 @@ const saveFileLocal = (bid, turn, player, type) => (event) => {
             fd.append("uname", localStorage.getItem("uname"));
             fd.append("proof", await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`));
             fd.append("claim", claim);
-            fd.append("at", await getOgTimestamp(`${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`));
-            fd.append("newAt", await getTimestamp(`${usr.name}/${bid}/${type}${turn}${player > 0 ? "p" + player : ""}`));
+            fd.append("at", await getOgTimestamp(`${bid}/${type}${turn}p${player}`));
+            fd.append("newAt", await getTimestamp(`${usr.name}/${bid}/${type}${turn}p${player}`));
             return fd;
         },
             sendRemote = fd=>{
@@ -189,7 +184,7 @@ resetPwd = async(data)=>fetch("/api/newPwd", {method: "POST", body:JSON.stringif
     }
 })}).then(async (r)=>{if(r.status === 200) console.log(`changed user pwd successfully!`); else console.error(await r.text()); return r}).catch(e=>alert(e));
 
-const reloadData = async()=>fetch("api/auth", {
+const reloadData = async()=>fetch("/api/auth", {
         "Access-Control-Allow-Origin": '*',
         method: "POST",
         body:`["${localStorage.getItem('uname')}","${await sha512(`${localStorage.getItem('uname')}+${localStorage.getItem('stamp')}`)}"]`
@@ -200,9 +195,35 @@ const reloadData = async()=>fetch("api/auth", {
         return r;
     });
 
+const openPeopleEditor = ()=>editingPeople.value = true,
+    closePeopleEditor = ()=>editingPeople.value = false,
+
+    //duskDawn = () => (lt.value = !lt.value),
+	pwdDialogOpen = () => (pwdDialog.value = true),
+	pwdDialogClose = () => (pwdDialog.value = false);
+
+const showUnshow = () => (showSide.value = !showSide.value);
+
+const duskDawn = () => (lt.value = !lt.value);
+
+const pureHide = () => {
+	if (overrides.value) showSide.value = false;
+	if (pwdDialog.value) pwdDialogClose();
+	if (editingPeople.value) closePeopleEditor();
+};
+
+const saveNewBoPData = async(bid, turn, chosts, players, npcs)=>
+    fetch("/api/updateBoppers", {method: "POST", body: JSON.stringify({
+        chosts,
+        players,
+        npcs,
+        user: [localStorage.getItem("uname"), await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`), bid, turn]
+    })
+    });
+
 // filename: Kb<b>t<t>p<p>.bb
 // K {C:card R:report O:orders}
 // bid,turn,player
-// ["${uname}","${await proof}","${bid}","${turn}",${claim}, ${type}<, ${unameSel}>]
+// ["${uname}","${await proof}",${bid},${turn},${claim}, ${type}<, ${unameSel}>]
 
-export {load, makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveLock, saveFileRemote, remoteSaveLock, playerGetLock, createBoP, reloadData, createUser, resetPwd};
+export {makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveFileRemote, createBoP, reloadData, createUser, resetPwd, openPeopleEditor, closePeopleEditor, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, saveNewBoPData};

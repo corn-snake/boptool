@@ -7,6 +7,7 @@
         <h3 v-for="value, number in props.array ?? []" :class="[(props.sin === true && props.si == number) || props.si == value ? 'sel' : '']" @click="()=>$emit('selItem',{value,number})">
         {{ `${props.pronomen || ""}${props.spacing ? " " : ""}${value}` }}
         </h3>
+        <slot></slot>
     </nav>
 </template>
 <style scoped>

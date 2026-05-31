@@ -8,7 +8,7 @@
 				<img
 					:src="
 						lt
-							? 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Tonatiuhco.svg/1024px-Tonatiuhco.svg.png'
+							? 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Tonatiuhco.svg/1280px-Tonatiuhco.svg.png'
 							: 'https://upload.wikimedia.org/wikipedia/commons/5/5b/Metztli-Luna-Moon.png'
 					"
 					alt=""

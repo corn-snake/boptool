@@ -1,23 +1,12 @@
 <script setup>
 	import Sidebar from "./components/layout/Sidebar.vue";
 	import Heady from "./components/layout/Heady.vue";
-	import { ref, onMounted, onUnmounted } from "vue";
-	import { load, makeLoad, unLoad } from "./lib/runtimeActs.js";
-	import { lt } from "./stores/bopstore.js";
+	import { onMounted, onUnmounted } from "vue";
+	import { load, pwdDialog, lt, overrides, showSide } from "./stores/bellsandwhistles.js";
+	import { makeLoad, unLoad, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide } from "./lib/runtimeActs.js";
     import ChangePassword from "./components/atoms/ChangePassword.vue";
     import RequestNewPassword from "./components/atoms/RequestNewPassword.vue";
     import { isAuth } from "./stores/authStore.js";
-	const overrides = ref(document.getElementById("app").offsetWidth < 601),
-	    showSide = ref(document.getElementById("app").offsetWidth > 501),
-		pwdDialog = ref(false);
-	const showUnshow = () => (showSide.value = !showSide.value),
-		pureHide = () => {
-			if (overrides.value) showSide.value = false;
-			if (pwdDialog.value) pwdDialogClose();
-		},
-		duskDawn = () => (lt.value = !lt.value),
-		pwdDialogOpen = () => (pwdDialog.value = true),
-		pwdDialogClose = () => (pwdDialog.value = false);
 	if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
 		lt.value = false;
 	}
@@ -171,7 +160,9 @@
 		color: black;
 	}
 	:not(.dt) .submitter,
-	.dt .submitter {
+	:not(.dt) .submitter *,
+	.dt .submitter
+	.dt .submitter * {
 		color: #eae7e0;
 	}
 	.dt .submitter {
@@ -217,6 +208,9 @@
 		background-color: initial;
 		border: none;
 		font-size: 1rem;
+	}
+	dialog, dialog * {
+	    transition: var(--trchroma);
 	}
 	button {
        	border-radius: 8px;
@@ -276,6 +270,8 @@
 	.v-select {
 	    display: inline-block;
 		min-width: 7rem;
+		width: fit-content;
+		max-width: 80%;
 	}
 </style>
 <style scoped>

@@ -1,21 +1,10 @@
 <script setup>
 	import { ref, watch } from 'vue';
-    /*import preset from '@bbob/preset-vue';
-	const myPreset = preset.extend(defTags => ({
-		...defTags,
-		img: (node) => ({
-			tag: 'img',
-		}) && console.log(node)
-	}));
-	const plugins = [
-		myPreset()
-	];*/
-	// ignore that until they fix their shit
 	const props = defineProps(["file", "hostOrder", "pastOrder"]);
 	const toRender=ref(props.file);
 	const fullHeight = ref(false),
         toggleFullHeight = () => fullHeight.value = !(fullHeight.value);
-	watch(()=>props.file, (nv,ov)=>toRender.value = props.file);
+	watch(()=>props.file, ()=>toRender.value = props.file);
 
 	import { finalParser } from '../../stores/bopstore';
 </script>
@@ -25,8 +14,7 @@
         <input type="checkbox" :value="toggleFullHeight" name="showRender" @click="toggleFullHeight" /></div>
     </div>
 	<article :class="['renderedArea', fullHeight === true ? 'fh' : 'ah']" v-html='finalParser.toHTML(
-    	props.hostOrder === true && toRender.trim().length === 0 ? "[i][u]This player sent no orders![/u][/i]" :
-    	props.hostOrder === true && toRender === "FILEEMPTY" ? "[i][u]This player just entered the fray![/u][/i]" :
+    	props.hostOrder === true && toRender === "FILEEMPTY" ? "[i][u]This player sent no orders![/u][/i]" :
         props.pastOrder === true && toRender === "FILEEMPTY" ? "[i]You sent no orders for this turn![/i]" :
     	toRender === "FILEEMPTY" ? "[i][u]This section is empty; contact your local bophost to correct it.[/u][/i]" : toRender )'>
      </article>

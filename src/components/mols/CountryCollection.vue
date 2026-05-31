@@ -1,6 +1,6 @@
 <script setup>
     import { reactive } from 'vue';
-    import GenericPanel from '../atoms/GenericPanel.vue';
+    import GenericPanel from '../mols/GenericPanel.vue';
     const croStat = reactive({
 		c: true,
 		r: true,

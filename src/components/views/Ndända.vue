@@ -1,13 +1,14 @@
 <script setup>
     import { computed, reactive, ref, watch } from "vue";
-    import { compBop } from "../stores/bopstore.js";
-    import { createBoP, createUser, getAllBoppers, reloadData, resetPwd } from "../lib/runtimeActs.js";
+    import { compBop, bopData } from "../../stores/bopstore.js";
+    import { createBoP, createUser, getAllBoppers, reloadData, resetPwd } from "../../lib/runtimeActs.js";
 
     defineOptions({
         inheritAttrs: false
     })
 
     compBop.title = "";
+    bopData.country = "";
 
     const screen = ref(0),
         options = ref([]),
