@@ -39,12 +39,17 @@ CREATE OR REPLACE FUNCTION bop_bopdata."getUserBops"(uid uuid)
 
       select into chostsjn concat('[', string_agg(concat('[', cast(bid as text), ',"', name, '","', icon, '",', cast(last as text), ']'), ','), ']') from (select bid, name, icon, max(number) as last from bop_bopdata.bops join bop_bopdata.turns on id=bid where bid in (select bid from bop_bopdata.turns where uid=ANY(chosts)) group by bid, name, icon);
 
-      select into playsjn concat('[', string_agg(cc, ','), ']') from (select concat('[', id, ',"', name, '","', icon, '",', cast(max(number) as text), ',[', string_agg(concat('{"number":', number, ',"name":"', cast(player->>'name' as text), '"}'), ','), ']]') as cc
-        from (select unnest(players) as player, bid, number from bop_bopdata.turns)
-        join bop_userdata.ud on cast(player->>'uid' as uuid)=bop_userdata.ud.uid
-        join bop_bopdata.bops on bop_bopdata.bops.id=bid
-        where ui=bop_userdata.ud.uid
-        group by bop_bopdata.bops.id);
+      select into playsjn to_jsonb(coalesce(array_agg(bd), ARRAY[]::json[])) from (select json_array(id, name, icon, 0, array_agg(json_object('name': tpname, 'number': tpnumber))) as bd from (
+        select bops.id, bops.name, coalesce(bops.icon, '') as icon,
+        turn_players.name as tpname, turn_players.turn as tpnumber,
+        coalesce(case when bops.last_processing = true then nrturn else mturn end, -1) as max_turn
+        from bop_bopdata.bops
+        left join bop_bopdata.turn_players on id=bop
+        left join (select max(number) as mturn, bid from bop_bopdata.turns group by bid) mt on mt.bid = id
+        left join lateral (select max(number) as nrturn, bid from bop_bopdata.turns where number <> mturn group by bid) mp on mp.bid=id
+        where player=ui)
+      where tpnumber <= max_turn
+      group by id, name, icon);
 
     RETURN concat('{"hosts": ', hostsjn, ', "chost": ', chostsjn, ', "plays": ', playsjn, '}');
     END;
@@ -55,15 +60,22 @@ CREATE OR REPLACE FUNCTION bop_bopdata."buildHistory"(uid uuid, bn int)
   set search_path = ''
   AS $$
     DECLARE
-      latesturn record;
+      bopinfo record;
+      players uuid[];
+      last_turn int;
     BEGIN
-    select into latesturn host, chosts, players from bop_bopdata.turns where bop_bopdata.turns.bid=bn order by number desc limit 1;
-    IF latesturn.host = uid or uid = ANY(latesturn.chosts) then
-      return (select array(select number from bop_bopdata.turns where bop_bopdata.turns.bid=bn order by number asc));
-    ELSIF (select uid in (select cast(unnest(latesturn.players)->>'uid' as uuid))) then
-      return (select array(select number from (select number, cast(unnest(players)->>'uid' as uuid) as player from bop_bopdata.turns where bop_bopdata.turns.bid=bn) where player=uid order by number asc));
-    END IF;
-    return null;
+      select into bopinfo host, chosts, last_processing from bop_bopdata.bops where id=bn;
+      select into players array_agg(player) from bop_bopdata.turn_players where bop=bn group by turn order by turn desc limit 1;
+      IF bopinfo.host = uid or uid = ANY(bopinfo.chosts) THEN
+        return (select array_agg(distinct turn order by turn asc) from bop_bopdata.turn_players where bop=bn);
+      ELSIF uid=ANY(players) then
+        IF bopinfo.last_processing = true THEN
+          select into last_turn number from bop_bopdata.turns where bid=bn order by number desc limit 1;
+          return (select array_agg(turn order by turn asc) from bop_bopdata.turn_players where bop=bn and player=uid and turn <> last_turn);
+        END IF;
+        return (select array_agg(turn order by turn asc) from bop_bopdata.turn_players where bop=bn and player=uid);
+      END IF;
+      return null;
     END;
 $$ LANGUAGE plpgsql;
 
@@ -91,6 +103,7 @@ CREATE OR REPLACE FUNCTION bop_bopdata."validateBopStanding"(bn int8, tn int8, u
     DECLARE
         turn RECORD;
         player_uid uuid[];
+        max_turn int;
     BEGIN
         select into turn host,chosts,players from bop_bopdata.turns where bid=bn and number=tn limit 1;
         IF NOT FOUND THEN
@@ -101,7 +114,8 @@ CREATE OR REPLACE FUNCTION bop_bopdata."validateBopStanding"(bn int8, tn int8, u
           RETURN cast(array_position(turn.chosts, uid) - 1 as text);
         END IF;
         select into player_uid array((select cast(unnest(players)->>'uid' as uuid) from bop_bopdata.turns where bid=bid and number=tn));
-        IF claim = 0 and uid = ANY(player_uid) THEN
+        select into max_turn max(number) from bop_bopdata.turns where bid=bn;
+        IF (turn.last_processing = false or tn <> max_turn) and claim = 0 and uid = ANY(player_uid) THEN
           RETURN cast(array_position(player_uid, uid) - 1 as text);
         END IF;
         RETURN 'false';

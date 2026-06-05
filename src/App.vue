@@ -91,6 +91,9 @@
 	.flex.columnar {
 		flex-direction: column;
 	}
+	.spacearound {
+        justify-content: space-around;
+	}
 	.fullwidth {
 		width: 100%;
 	}

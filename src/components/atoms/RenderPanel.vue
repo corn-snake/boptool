@@ -5,8 +5,9 @@
 	const fullHeight = ref(false),
         toggleFullHeight = () => fullHeight.value = !(fullHeight.value);
 	watch(()=>props.file, ()=>toRender.value = props.file);
+	watch(()=>bopData.lastIsProcessing, (n,o)=>console.log(n))
 
-	import { finalParser } from '../../stores/bopstore';
+	import { bopData, finalParser } from '../../stores/bopstore';
 </script>
 <template>
 	<div class="showRenderBox">

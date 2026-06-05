@@ -13,15 +13,15 @@
 	const props = defineProps(["type", "d", "strip", "doubleBind"]), route = useRoute();
 	const localTurn = ref(-1);
 	const panelGet = ref("[i]loading...[/i]"),
-	    errored = ref(false),
-		rw = computed(()=>{
+        errored = ref(false),
+        rw = computed(() => {
             if (errored.value === true) return false;
-		    if (bopData.claim > 0 && bopData.lastIsProcessing === true && props.type !== "O" && localTurn.value === compBop.history.at(-1))
-				return true;
-			if (bopData.claim <= 0 && bopData.lastIsProcessing === false && props.type === "O" && finishedFirstFetch.value === true && localTurn.value === compBop.history.at(-1).number)
-			    return true;
-			return false;
-		}),
+            if (bopData.claim > 0 && bopData.lastIsProcessing === true && props.type !== "O" && localTurn.value === compBop.history.at(-1))
+                return true;
+            if (bopData.claim <= 0 && bopData.lastIsProcessing === false && props.type === "O" && finishedFirstFetch.value === true && localTurn.value === compBop.history.at(-1).number)
+                return true;
+            return false;
+        }),
 
 		fetchTurn = computed(()=>{
     		if (bopData.lastIsProcessing === true && bopData.claim > 0 && props.type === "O" && localTurn.value === compBop.history.at(-1))
@@ -97,7 +97,7 @@
 	</h2>
 	<slide-up-down :active="props.d" :duration="600">
 	    <HistoryLine v-if="props.strip!==true" :st="localTurn" @selTurn="n=>localTurn = n" />
-    	<RenderPanel v-if="!rw" :file="panelGet" :hostOrder="props.type === 'O' && bopData.claim > 0" :pastOrder="props.type === 'O' && bopData.claim <= 0 && finishedFirstFetch && compBop.history.at(-1) !== undefined && localTurn !== compBop.history.at(-1).number" />
+    	<RenderPanel v-if="!rw" :file="panelGet" :hostOrder="props.type === 'O' && bopData.claim > 0" :pastOrder="props.type === 'O' && bopData.claim <= 0 && finishedFirstFetch && compBop.history.at(-1) !== undefined && (localTurn !== compBop.history.at(-1).number || bopData.lastIsProcessing)" />
     	<RenderEditable v-if="rw" :file="panelGet" @edit="e=>saveFileLocal(bopData.bop, localTurn, bopData.country, props.type)(e)" />
         <nav class="slideBackUp">
             <button v-if="rw" :class="['remoteSave', 'submitter', saveLock > 0 ? 'ded' : '', remoteSaveLock > 0 ? 'breathing' : '']" @click="()=>saveFileRemote(bopData.bop, localTurn, bopData.country, props.type, bopData.claim)">

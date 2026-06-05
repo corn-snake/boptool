@@ -9,7 +9,7 @@
 
 	const route = useRoute();
 
-    const tr = () => boppise(route.params.id, true).then(r=>{
+    const tr = () => boppise(route.params.id, false).then(r=>{
         bopData.claim = 0;
         bopData.bop = parseInt(route.params.id);
         compBop.history = boppeList.plays.find(v => v[0] === bopData.bop).at(-1);

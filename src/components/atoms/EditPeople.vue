@@ -129,9 +129,12 @@ const options = ref([]),
                     </li>
                 </ul>
             </section>
-            <section>
+            <section class="flex spacearound">
                 <button :class="['submitter', bthUpd ? 'breathing' : '']" @click="sendNewBoPData">
                     Update!
+                </button>
+                <button :class="['oldsilver', bthUpd ? 'breathing' : '']" @click="closePeopleEditor">
+                    Close
                 </button>
             </section>
         </fieldset></form>

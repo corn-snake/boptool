@@ -38,3 +38,4 @@ Fixed/implemented:
     - admin panel
     - password reset while logged in
     - host can change players, npcs and cohosts
+    - players cannot see new turns before they're published
