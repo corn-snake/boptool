@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, watch, computed, reactive } from 'vue';
+    import { ref, watch, computed } from 'vue';
     defineEmits(["edit"]);
     const props = defineProps(["file"]);
 	const toRender=ref(props.file),
@@ -52,7 +52,7 @@
         overflow-y: scroll;
     }
     main:not(.dt) .editorArea {
-        background-color: #E8DECD;
+        background-color: var(--editcolor);
     }
     main.dt .editorArea {
         background-color: #ABB1B5;

@@ -16,6 +16,9 @@ const finalParser = new Parser();
 const compBop = reactive({
     title: "",
     history: [],
+    validated: [],
+    completed: [],
+    progress: {}
 });
 
 const bopData = reactive({

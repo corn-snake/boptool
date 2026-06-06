@@ -39,7 +39,7 @@ const routing = (new Router({dev}))
         });
     })
     .post("/bop", async (req,res)=>{
-        //[uname,signed,bid]
+        //[uname,signed,bid, nh?]
         const b = dev ? req.body : await (await req).json();
         const c = await validateUser(await b);
         if (c === false)

@@ -1,7 +1,7 @@
 <script setup>
 	import { watch } from "vue";
 	import { boppise } from "../../lib/runtimeActs.js";
-	import { compBop, bopData } from "../../stores/bopstore.js";
+	import { compBop, bopData, players, nonplayables, cohosters } from "../../stores/bopstore.js";
 	import { boppeList } from "../../stores/authStore.js";
 	import { finishedFirstFetch } from "../../stores/bellsandwhistles.js";
 	import { useRoute } from "vue-router";
@@ -9,16 +9,28 @@
 
 	const route = useRoute();
 
-    const tr = () => boppise(route.params.id, false).then(r=>{
-        bopData.claim = 0;
-        bopData.bop = parseInt(route.params.id);
-        compBop.history = boppeList.plays.find(v => v[0] === bopData.bop).at(-1);
-        compBop.title = boppeList.names[bopData.bop];
-        bopData.country = compBop.history.at(-1).name;
-        bopData.lastIsProcessing = r;
-        bopData.turn = boppeList.plays.find(v => v[0] === bopData.bop).at(-1).number;
+	const tr = () => {
+        bopData.bop = -1;
+        bopData.turn = -1;
         bopData.player = -1;
-    });
+        compBop.history = [];
+        compBop.validated = [];
+        compBop.completed = [];
+        compBop.progress = {};
+        players.value = [];
+        nonplayables.value = [];
+        cohosters.value = [];
+        boppise(route.params.id, false).then(r => {
+            bopData.claim = 0;
+            bopData.bop = parseInt(route.params.id);
+            compBop.history = boppeList.plays.find(v => v[0] === bopData.bop).at(-1);
+            compBop.title = boppeList.names[bopData.bop];
+            bopData.country = compBop.history.at(-1).name;
+            bopData.lastIsProcessing = r;
+            bopData.turn = boppeList.plays.find(v => v[0] === bopData.bop).at(-1).number;
+            bopData.player = -1;
+        })
+    };
 
     if (finishedFirstFetch.value === false) watch(() => finishedFirstFetch.value, tr); else tr();
 	watch(() => route.params, tr);

@@ -7,7 +7,7 @@
 	watch(()=>props.file, ()=>toRender.value = props.file);
 	watch(()=>bopData.lastIsProcessing, (n,o)=>console.log(n))
 
-	import { bopData, finalParser } from '../../stores/bopstore';
+	import { bopData, finalParser } from '../../stores/bopstore.js';
 </script>
 <template>
 	<div class="showRenderBox">

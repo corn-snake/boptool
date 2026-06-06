@@ -7,6 +7,9 @@ Features:
         [5.1] beginners' guide to bbcode
     [6] edit conflicts
 
+Bugs:
+    [1] players still show up while loading in (co)host view
+
 FRs:
     [1] markdown/bbcode switch
     [2] in-code comments (// token will stop stuff in front of it from displaying, /* */ tkn pairs constitute block-level comments)
@@ -39,3 +42,4 @@ Fixed/implemented:
     - password reset while logged in
     - host can change players, npcs and cohosts
     - players cannot see new turns before they're published
+    - loading data

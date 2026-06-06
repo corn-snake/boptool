@@ -1,0 +1,15 @@
+:root {
+	font-family: Avenir, Helvetica, Arial, sans-serif;
+	--linkcolor: #815127;
+	--editcolor: #E8DECD;
+}
+body {
+    background-color: var(--editcolor);
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 10px;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --editcolor: #ABB1B5;
+    }
+}

@@ -62,6 +62,7 @@
 		font-family: Avenir, Helvetica, Arial, sans-serif;
 		--magicmissile: calc(0.875rem + 22px + 1.44 * 20px);
 		--linkcolor: #815127;
+		--editcolor: #E8DECD;
 		--trcolor: color 0.2s ease-in;
 		--trbg: background-color 0.2s ease-in;
 		--trbd: border-color 0.2s ease-in;
@@ -90,6 +91,9 @@
 	}
 	.flex.columnar {
 		flex-direction: column;
+	}
+	.flex.nogrow > * {
+	    flex-grow: 0;
 	}
 	.spacearound {
         justify-content: space-around;
@@ -187,7 +191,7 @@
 	.linkcolor * {
 		color: var(--linkcolor) !important;
 	}
-	.dt a,
+	.dt a:not(.keepdt),
 	.dt a :not(*),
 	.dt .linkcolor,
 	.dt .linkcolor :not(*) {
