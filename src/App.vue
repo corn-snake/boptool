@@ -2,8 +2,8 @@
 	import Sidebar from "./components/layout/Sidebar.vue";
 	import Heady from "./components/layout/Heady.vue";
 	import { onMounted, onUnmounted } from "vue";
-	import { load, pwdDialog, lt, overrides, showSide } from "./stores/bellsandwhistles.js";
-	import { makeLoad, unLoad, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide } from "./lib/runtimeActs.js";
+	import { pwdDialog, lt, overrides, showSide } from "./stores/bellsandwhistles.js";
+	import { pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, loadSettings } from "./lib/runtimeActs.js";
     import ChangePassword from "./components/atoms/ChangePassword.vue";
     import RequestNewPassword from "./components/atoms/RequestNewPassword.vue";
     import { isAuth } from "./stores/authStore.js";
@@ -15,7 +15,13 @@
 	    overrides.value = document.getElementById("app").offsetWidth < 601;
 		showSide.value = document.getElementById("app").offsetWidth > 501;
 	};
-	onMounted(()=>window.addEventListener('resize', winChange));
+	onMounted(() => {
+        window.addEventListener('resize', winChange);
+        loadSettings().then(v => {
+            if (v.lt) lt.value = v.lt;
+            if (v.showSide) showSide.value = v.showSide;
+        });
+    });
 	onUnmounted(()=>window.removeEventListener('resize', winChange));
 </script>
 
@@ -23,11 +29,7 @@
 	<Sidebar
 		:logged="isAuth"
 		:class="{ on: showSide, off: !showSide, dt: !lt }"
-		:lt="lt"
-		@toooogle="showUnshow"
 		@noon="duskDawn"
-		@loading="makeLoad"
-		@loaded="unLoad"
 		@asknewpwd="pwdDialogOpen"
 		@click="pwdDialogClose"
 	/>
@@ -37,11 +39,11 @@
 			'fullwidth',
 			'rel',
 			'oldsilver',
-			{ dt: !lt, left: !showSide, hide: showSide && overrides, load: load },
+			{ dt: !lt, left: !showSide, hide: showSide && overrides },
 		]"
 		@click="pureHide"
 	>
-		<Heady @hideShow="showUnshow" @loading="makeLoad" @loaded="unLoad" :small="showSide" />
+		<Heady @hideShow="showUnshow" :small="showSide" />
 		<router-view></router-view>
 	</main>
 	<dialog id="pwdReset" :open="pwdDialog">
@@ -71,6 +73,8 @@
 	.dt {
 	    --vs-border-color: rgba(204, 204, 204, 0.66);
 		--vs-open-indicator-color: #ccc;
+		--editcolor: #ABB1B5;
+		--linkcolor: #AECCE4;
 	}
 	html {
 		font-size: 16px;
@@ -186,18 +190,12 @@
 		transition: var(--trchroma), filter 0.2s ease-in;
 	}
 	a,
-	a *:not(.ovimp),
+	a *:not(.ovimp, .basecolor),
 	.linkcolor,
 	.linkcolor * {
 		color: var(--linkcolor) !important;
 	}
-	.dt a:not(.keepdt),
-	.dt a :not(*),
-	.dt .linkcolor,
-	.dt .linkcolor :not(*) {
-		filter: invert(100%) !important;
-	}
-	.dt * {
+	.dt *:not(.keepcolor *) {
 		color: rgba(255, 255, 255, 0.87);
 	}
 	.main {

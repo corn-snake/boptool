@@ -266,6 +266,37 @@ const routing = (new Router({dev}))
             "Access-Control-Allow-Origin": '*'
         }});
     })
+    .post("/valcomp", async(req,res)=>{
+        // ["${uname}", "${await proof}", bid, player.number, completed?]
+        const b = dev ? req.body : await(await req).json();
+        const c = await validateUser(b);
+        if (c === false)
+            if (dev) {
+                res.status = 403;
+                return res.end("failed to verify.");
+            }
+            else return small403();
+        // uid uuid, bn int8, player int2, level int2
+        const d = await sb.schema("bop_bopdata").rpc("upgradeCompletion", {uid: c.uid, bn: b[2], player: b[3], level: b[4] ? 1 : 0});
+        if (d.error || d.data == false)
+            if (dev) {
+                res.status = 500;
+                return res.end(JSON.stringify(d.error || d.data))
+            } else return new Response(JSON.stringify(d.error || d.data), {
+                status: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": '*'
+                }});
+        if (dev) {
+            res.status = 200;
+            return res.end(d.data);
+        }
+        return new Response(d.data, {
+            status: 200,
+            headers: {
+                "Access-Control-Allow-Origin": '*'
+            }});
+    })
     .post("/newTurn", async(req,res)=>{
         // {user, turndata}
         // user: ["${uname}","${await proof}", bid, turn]

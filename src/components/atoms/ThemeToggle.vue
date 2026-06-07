@@ -1,5 +1,5 @@
 <script setup>
-	const props = defineProps(["lt"]);
+    import { lt } from '../../stores/bellsandwhistles';
 </script>
 <template>
 	<footer>

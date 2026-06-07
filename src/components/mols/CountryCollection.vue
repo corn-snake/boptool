@@ -12,9 +12,10 @@
     const props = defineProps(['strip', 'bindToPlayer']);
 </script>
 <template>
-    <div>
+    <div class="flex columnar">
         <GenericPanel type="C" :d="croStat.c" @turn="croStat.c = !croStat.c" :strip="props.strip" :doubleBind="props.bindToPlayer" />
         <GenericPanel type="R" :d="croStat.r" @turn="croStat.r = !croStat.r" :strip="props.strip" :doubleBind="props.bindToPlayer" />
+        <slot></slot>
         <GenericPanel type="O" :d="croStat.o" @turn="croStat.o = !croStat.o" :strip="props.strip" :doubleBind="props.bindToPlayer" />
         <nav class="slideAll" v-show="croStat.c + croStat.r + croStat.o > 1" @click="closeAll"><small><em>Close'em all</em>&nbsp;<span :class="['disp', props.d ? '' : 'down']"><svg width="1em" height="1em" viewBox="0 0 100 100">
 			<path d="M10 90 L45 35 Q50 30 55 35 L90 90"

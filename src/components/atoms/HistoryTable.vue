@@ -3,7 +3,7 @@
     import { players, compBop, nonplayables } from './../../stores/bopstore.js';
     import Imagey from "./../primitives/Imagey.vue";
     import PopOut from './../mols/PopOut.vue';
-import { loadingData } from '../../stores/bellsandwhistles.js';
+    import { loadingData, lt } from '../../stores/bellsandwhistles.js';
 
     const shown = ref(false),
         changeShow = () => shown.value = !shown.value;
@@ -27,7 +27,7 @@ import { loadingData } from '../../stores/bellsandwhistles.js';
 			</svg>
 		</span>
 	</h3>
-	<slide-up-down :active="shown" :duration="600" class="flex columnar">
+	<slide-up-down :active="shown" :duration="600" class="flex columnar keepcolor">
 	    <table>
 			<thead>
 			    <tr>

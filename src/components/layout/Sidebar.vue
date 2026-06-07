@@ -2,13 +2,15 @@
 	import BoPList from "./../mols/BoPList.vue";
 	import ThemeToggle from "./../atoms/ThemeToggle.vue";
 	import { RouterLink } from "vue-router";
-	const props = defineProps(["logged", "lt"]);
+    import { lt } from "../../stores/bellsandwhistles";
+	const props = defineProps(["logged"]);
+	defineEmits(['asknewpwd', 'noon']);
 </script>
 <template>
 	<div class="sidebar fullwidth rel burntivory flex columnar">
-		<RouterLink to="/" :class="['lonk']">
-			<div :class="[!logged ? 'active' : '', 'returner']">
-				<div class="title">BoP Tool v2.5</div>
+		<RouterLink to="/" class="lonk keepnofilter" exactActiveClass="mainpage">
+			<div :class="['returner', { active: !props.logged, dt: !lt }]">
+				<div class="title ovimp basecolor">BoP Tool v2.5</div>
 				<div class="subtitle ovimp">*even more manic cackling</div>
 			</div>
 		</RouterLink>
@@ -23,7 +25,7 @@
 			"
 			><i>Change password</i>
 		</a>
-		<ThemeToggle :lt="lt" @noon="() => $emit('noon')" />
+		<ThemeToggle @noon="() => $emit('noon')" />
 	</div>
 </template>
 
@@ -48,9 +50,11 @@
 		font-size: 20px;
 		margin-bottom: 2px;
 	}
-	.returner.active,
-	.returner.active .title {
-		color: var(--linkcolor);
+	.returner .title {
+	    color: var(--linkcolor);
+	}
+	.dt.returner .title {
+		color: #7dadd8;
 	}
 	.lonk.off {
 		pointer-events: none;
@@ -76,7 +80,7 @@
 		left: 0;
 		width: 100%;
 		height: var(--magicmissile);
-		background-color: currentColor;
+		background-color: var(--linkcolor);
 		opacity: 0;
 		transition: opacity 0.15s ease-out;
 	}
@@ -86,7 +90,6 @@
 	.returner.active::before {
 		opacity: 0.12;
 	}
-
 	.sidebar.off {
 		transform: translateX(-100%);
 	}
@@ -98,9 +101,6 @@
 	}
 	.changer i {
 		text-decoration: underline dashed;
-	}
-	@media (orientation: landscape) {
-
 	}
 	@media (max-width: 600px) {
 		.sidebar {

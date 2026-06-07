@@ -1,6 +1,6 @@
 import { sha512, usr } from "../stores/authStore.js";
 import { players } from "../stores/bopstore.js";
-import { load, saveLock, remoteSaveLock, editingPeople, pwdDialog, showSide, lt, overrides } from "../stores/bellsandwhistles.js";
+import { load, saveLock, remoteSaveLock, editingPeople, pwdDialog, showSide, lt, overrides, settings } from "../stores/bellsandwhistles.js";
 
 const setupTsDb = () => new Promise((resolve, reject) => {
     const tsdb_req = window.indexedDB.open("timestamps", 1);
@@ -202,9 +202,25 @@ const openPeopleEditor = ()=>editingPeople.value = true,
 	pwdDialogOpen = () => (pwdDialog.value = true),
 	pwdDialogClose = () => (pwdDialog.value = false);
 
+const loadSettings = ()=>new Promise((resolve)=>{
+    const a = localStorage.getItem("settings");
+    if (!a) return resolve("{}");
+    const b = JSON.parse(a);
+    Object.keys(b).forEach(k=>settings[k]=b[k]);
+    return resolve(settings);
+}),
+    setSetting = (setting, value)=>new Promise((resolve)=>{
+        settings[setting] = value;
+        localStorage.setItem("settings", JSON.stringify(settings));
+        return resolve(true);
+    });
+
 const showUnshow = () => (showSide.value = !showSide.value);
 
-const duskDawn = () => (lt.value = !lt.value);
+const duskDawn = () => {
+    setSetting('lt', !lt.value);
+    lt.value = !lt.value;
+};
 
 const pureHide = () => {
 	if (overrides.value) showSide.value = false;
@@ -219,11 +235,14 @@ const saveNewBoPData = async(bid, turn, chosts, players, npcs)=>
         npcs,
         user: [localStorage.getItem("uname"), await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`), bid, turn]
     })
-    });
+});
+
+
+const updateCompletion = async(bop, player, completed=false)=>fetch('/api/valcomp', {method: "POST", body: `["${localStorage.getItem("uname")}", "${await sha512(`${localStorage.getItem("uname")}+${localStorage.getItem('stamp')}`)}", ${bop}, ${player}, ${completed}]`});
 
 // filename: Kb<b>t<t>p<p>.bb
 // K {C:card R:report O:orders}
 // bid,turn,player
 // ["${uname}","${await proof}",${bid},${turn},${claim}, ${type}<, ${unameSel}>]
 
-export {makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveFileRemote, createBoP, reloadData, createUser, resetPwd, openPeopleEditor, closePeopleEditor, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, saveNewBoPData};
+export {makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveFileRemote, createBoP, reloadData, createUser, resetPwd, openPeopleEditor, closePeopleEditor, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, saveNewBoPData, loadSettings, updateCompletion, setSetting};

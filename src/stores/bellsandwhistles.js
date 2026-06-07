@@ -1,7 +1,7 @@
+import { reactive } from "vue";
 import { ref } from "vue";
 
-const lt = ref(false);
-lt.value = matchMedia('(prefers-color-scheme: light)')?.matches ?? false; // jic *something* happens
+const lt = ref(true);
 
 const load = ref(true),
     finishedFirstFetch = ref(false),
@@ -17,4 +17,6 @@ const pwdDialog = ref(false),
 const overrides = ref(document.getElementById("app").offsetWidth < 601),
     showSide = ref(document.getElementById("app").offsetWidth > 501);
 
-export { load, loadingData, saveLock, remoteSaveLock, playerGetLock, pwdDialog, editingPeople, lt, overrides, showSide, finishedFirstFetch };
+const settings = reactive({});
+
+export { load, loadingData, saveLock, remoteSaveLock, playerGetLock, pwdDialog, editingPeople, lt, overrides, showSide, finishedFirstFetch, settings };

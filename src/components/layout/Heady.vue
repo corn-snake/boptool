@@ -9,6 +9,7 @@
 	breathe = ()=>buttonBreathing.value = true,
 	gasp = ()=>buttonBreathing.value = false;
 	const router = useRouter();
+	defineEmits(['hideShow']);
 </script>
 <template>
 	<header class="flex fullwidth burntivory fwshadow">
@@ -36,11 +37,9 @@
 			@click="
 				(e) => {
 					e.preventDefault();
-					$emit('loading');
 					breathe();
 					killLogin(() => {
 					    gasp();
-					    $emit('loaded');
                         router.push('/login');
 					});
 				}

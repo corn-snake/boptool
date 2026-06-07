@@ -44,6 +44,9 @@
             pointer-events: none;
         }
     }
+    .vert * {
+        margin-top: 0.4rem;
+    }
     :not(.dt) h3.sel {
         color: color-mix(in srgb, currentColor 70%, transparent 30%);
     }

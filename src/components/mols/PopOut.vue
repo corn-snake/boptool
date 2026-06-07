@@ -18,7 +18,7 @@
 </script>
 
 <template>
-    <a class="keepdt" @click="openWindow" :title="`Open ${({C: 'card', R: 'report', O: 'orders'})[props.type]} for turn ${props.turn}`">
+    <a class="keepnofilter" @click="openWindow" :title="`Open ${({C: 'card', R: 'report', O: 'orders'})[props.type]} for turn ${props.turn}`">
         <slot></slot>
     </a>
 </template>

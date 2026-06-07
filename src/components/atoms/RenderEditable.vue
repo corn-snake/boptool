@@ -51,11 +51,10 @@
     .editorArea, .renderedArea {
         overflow-y: scroll;
     }
-    main:not(.dt) .editorArea {
+    main .editorArea {
         background-color: var(--editcolor);
     }
     main.dt .editorArea {
-        background-color: #ABB1B5;
         color: black;
     }
     main:not(.dt) .renderedArea {

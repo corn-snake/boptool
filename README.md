@@ -135,6 +135,30 @@ create or replace function bop_bopdata."getTurnPlayers"(bn int, tn int)
   return concat(pcs, npcar);
   end;
   $$ language plpgsql;
+
+CREATE OR REPLACE FUNCTION bop_bopdata."upgradeCompletion"(uid uuid, bn int8, player int2, level int2)
+  RETURNS boolean
+  set search_path = ''
+  AS $$
+    DECLARE
+        bopinfo RECORD;
+    BEGIN
+      select into bopinfo host,chosts,validated,completed from bop_bopdata.bops where id=bn limit 1;
+      IF NOT FOUND THEN 
+        RETURN false;
+      ELSIF bopinfo.host = uid OR uid = ANY(bopinfo.chosts) THEN
+        IF level = 1 AND NOT(player = ANY(bopinfo.validated)) AND player = ANY(bopinfo.completed) THEN
+          update bop_bopdata.bops set completed = array_remove(completed, player) where id = bn;
+          update bop_bopdata.bops set validated = validated || player where id = bn;
+          return true;
+        ELSIF level = 0 AND NOT (player = ANY(bopinfo.completed)) AND NOT(player = ANY(bopinfo.validated)) THEN
+          update bop_bopdata.bops set completed = completed || player where id = bn;
+          return true;
+        END IF;
+      END IF;
+      return false;
+    END;
+$$ LANGUAGE plpgsql;
 ```
 
 #### file

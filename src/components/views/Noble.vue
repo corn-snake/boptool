@@ -10,6 +10,7 @@
 	import EditPeople from "../atoms/EditPeople.vue";
 	import HistoryTable from "../atoms/HistoryTable.vue";
 	import { finishedFirstFetch, loadingData, playerGetLock } from "../../stores/bellsandwhistles.js";
+	import CompletionButtons from "../atoms/CompletionButtons.vue";
 
 	defineOptions({
         inheritAttrs: false
@@ -69,13 +70,13 @@
 	<HistoryLine :st="bopData.turn" class="pt" @selTurn="n=>bopData.turn = n" />
 	<HistoryTable/>
 	<div :class="wwidth >= 600 ? 'sideselect' : 'withtopselect'">
-		<GenericLine :array="players.map(({player, name})=>`${player} (${name})`)" :si="bopData.player" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p => { bopData.player = p.number;  bopData.country = players[p.number].name}" :sin="true" :nopad="wwidth >= 600 ? false : true"
+		<GenericLine :array="players.concat(nonplayables).map(({player, name})=>player ? `${player} (${name})` : `NPC: ${name}`)" :si="players.concat(nonplayables).findIndex(e=>e.number===bopData.player)" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p => { bopData.player = players.concat(nonplayables)[p.number].number; bopData.country = players.concat(nonplayables)[p.number].name}" :sin="true" :nopad="wwidth >= 600 ? false : true"
 			class="cl fwn">
 			<EditPeople v-if="bopData.claim === 2 && bopData.turn === compBop.history.at(-1)"/>
 		</GenericLine>
-		<!-- GenericLine :array="npcs" :si="bopData.npc" :vertical="wwidth >= 600 ? true : false" :rtl="true" @selItem="p =>bopData.player=p.number" :sin="true" :nopad="wwidth >= 600 ? false : true"
-			class="cl fwn" /-->
-		<CountryCollection :strip="true" class="cc" :bindToPlayer="true" />
+		<CountryCollection :strip="true" class="cc" :bindToPlayer="true">
+		    <CompletionButtons v-if="!loadingData && bopData.claim > 0 && bopData.player > -1 && (bopData.turn < 0 || bopData.turn === compBop.history.at(-1))"/>
+		</CountryCollection>
 	</div>
 </template>
 <style scoped>

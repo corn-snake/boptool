@@ -115,7 +115,7 @@
 	    font-weight: 450;
 	}
 	.dt .subtitle {
-	    color: rgba(0.8,0.8,1,0.6)
+	    color: rgba(204,204,255,0.6)
 	}
 	.amdin {
         text-align: center;

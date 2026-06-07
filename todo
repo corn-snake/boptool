@@ -8,11 +8,11 @@ Features:
     [6] edit conflicts
 
 Bugs:
-    [1] players still show up while loading in (co)host view
 
 FRs:
     [1] markdown/bbcode switch
     [2] in-code comments (// token will stop stuff in front of it from displaying, /* */ tkn pairs constitute block-level comments)
+        [2.1] comments on host files (R, C) may not be seen by players
     [3] user styling
     [4] auto turn rollover
 
@@ -37,9 +37,10 @@ Fixed/implemented:
     - live bbcode preview
     - local + remote saving, adaptive to files existing locally and remotely
     - (generally) mobile-friendly
-    - (generally) motion- accessible
+    - (generally) motion-accessible
     - admin panel
     - password reset while logged in
     - host can change players, npcs and cohosts
     - players cannot see new turns before they're published
     - loading data
+    - card validation + completion
