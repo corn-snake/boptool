@@ -1,9 +1,11 @@
 import { ref } from "vue";
 
-const lt = ref(matchMedia('(prefers-color-scheme: light)').matches ?? false); // jic *something* happens
+const lt = ref(false);
+lt.value = matchMedia('(prefers-color-scheme: light)')?.matches ?? false; // jic *something* happens
 
 const load = ref(true),
-    finishedFirstFetch = ref(false);
+    finishedFirstFetch = ref(false),
+    loadingData = ref(false);
 
 const saveLock = ref(0),
     remoteSaveLock = ref(0),
@@ -15,4 +17,4 @@ const pwdDialog = ref(false),
 const overrides = ref(document.getElementById("app").offsetWidth < 601),
     showSide = ref(document.getElementById("app").offsetWidth > 501);
 
-export { load, saveLock, remoteSaveLock, playerGetLock, pwdDialog, editingPeople, lt, overrides, showSide, finishedFirstFetch };
+export { load, loadingData, saveLock, remoteSaveLock, playerGetLock, pwdDialog, editingPeople, lt, overrides, showSide, finishedFirstFetch };

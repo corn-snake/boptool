@@ -33,12 +33,15 @@
             panelGet.value = "something very bad happened. [b]fuck![/b]";
 		}).finally(()=>loadingData.value = false);
 	defineEmits(["turn"]);
-	watch(() => [bopData.turn, bopData.bop], (n, o) => {
+	watch(() => [bopData.turn, localTurn.value], (n, o) => {
         errored.value = false;
-        if (props.doubleBind === true && bopData.claim > 0 && n[0] !== undefined && n[0] !== -1 && n[1] !== undefined && n[1] !== -1 && playerGetLock.value === false) {
+        if (bopData.claim < 1 || playerGetLock.value) return;
+        if (bopData.claim > 0 && playerGetLock.value === false) {
             loadingData.value = true;
             playerGetLock.value = true;
-            getPlayers(route.params.id, bopData.turn, list[route.params.claim]).then(({pcs, chosts, npcs}) => {
+            players.value = [];
+            nonplayables.value = [];
+            getPlayers(route.params.id, props.strip ? bopData.turn : localTurn, list[route.params.claim]).then(({pcs, npcs}) => {
            	    players.value = pcs;
                 nonplayables.value = npcs;
                 cohosters.value = chosts?.filter(Boolean).filter(e=>e.length > 1) ?? [];
@@ -49,9 +52,7 @@
                     else
                         return bopData.player = players.value.findIndex(p=>p.player === plyr);
                 }
-                localTurn.value = n[0];
-                playerGetLock.value = false;
-            }).finally(()=>loadingData.value = false)
+            }).finally(() => { loadingData.value = false; playerGetLock.value = false;})
         }
     });
 	watch(
@@ -73,19 +74,6 @@
             return refresh();
         }
     });
-    watch(
-        () => localTurn.value,
-        (n, o) => {
-            errored.value = false;
-            if ((props.doubleBind === true && bopData.player < 0) || n < 0 || n === undefined)
-                return panelGet.value = `Select a ${n >= 0 ? "player" : "turn"} from the list.`;
-            if (n!== undefined && n !== -1) {
-                panelGet.value = "[i]loading...[/i]";
-                loadingData.value = true;
-                return refresh()
-            };
-        }
-    );
 </script>
 
 <template>
