@@ -4,7 +4,6 @@
 	import Imagey from "./../primitives/Imagey.vue";
 	import { bopData, compBop } from "../../stores/bopstore.js";
 	import { useRouter } from 'vue-router';
-	const props = defineProps(["small"]);
 	const buttonBreathing = ref(false),
 	breathe = ()=>buttonBreathing.value = true,
 	gasp = ()=>buttonBreathing.value = false;
@@ -22,9 +21,14 @@
 				}
 			"
 		>
-			<i class="mdi mdi-menu"></i>
+		    <svg class="hbg" fill="currentColor" height="1.5rem" width="1.5rem" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="SVGRepo_iconCarrier"> <g transform="matrix(1,0,0,1,-1088,-192)"> <rect id="Icons" x="0" y="0" width="1280" height="800" style="fill:none;"></rect> <g id="Icons1" serif:id="Icons"> <g id="hamburger-2" transform="matrix(1.50868,0,0,1.01217,70.647,191.772)"> <g transform="matrix(0.149202,0,0,0.173437,664.206,42.142)"> <rect x="103.288" y="8.535" width="71.218" height="34.133" style="fill-rule:nonzero;"></rect> </g> <g transform="matrix(0.149202,0,0,0.173437,664.345,27.4)"> <rect x="103.288" y="8.535" width="141.366" height="34.133" style="fill-rule:nonzero;"></rect> </g> <g transform="matrix(0.149202,0,0,0.173437,664.345,12.658)"> <rect x="103.288" y="8.535" width="212.447" height="34.133" style="fill-rule:nonzero;"></rect> </g> </g> </g> </g> </g></svg>
+			<!--
+			    javisperez
+				https://www.svgrepo.com/svg/493683/hamburger-2-menu-mobile
+				under the apache license, 2.0: https://raw.githubusercontent.com/javisperez/toe-icons/refs/heads/master/LICENSE
+			-->
 		</button>
-		<span class="bopname" v-if="props.small && compBop.title.length > 0">
+		<span class="bopname" v-if="compBop.title.length > 0">
 		    {{ compBop.title }} :: {{ bopData.country }}
 		</span>
 		<div class="user">
@@ -110,11 +114,8 @@
             margin: 0 1rem;
         }
 	}
-	:not(.dt) .bopname {
-	    color: #57300a;
-	}
-	.dt .bopname {
-	    filter: invert(100%);
+	.bopname, .hbg {
+	    color: var(--titlecolor);
 	}
 </style>
 <style></style>

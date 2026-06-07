@@ -202,20 +202,16 @@ const openPeopleEditor = ()=>editingPeople.value = true,
 	pwdDialogOpen = () => (pwdDialog.value = true),
 	pwdDialogClose = () => (pwdDialog.value = false);
 
-const loadSettings = ()=>new Promise((resolve)=>{
-    const a = localStorage.getItem("settings");
-    if (!a) return resolve("{}");
-    const b = JSON.parse(a);
-    Object.keys(b).forEach(k=>settings[k]=b[k]);
-    return resolve(settings);
-}),
-    setSetting = (setting, value)=>new Promise((resolve)=>{
+const setSetting = (setting, value)=>new Promise((resolve)=>{
         settings[setting] = value;
         localStorage.setItem("settings", JSON.stringify(settings));
         return resolve(true);
     });
 
-const showUnshow = () => (showSide.value = !showSide.value);
+const showUnshow = () => {
+    setSetting("showSide", !showSide.value);
+    showSide.value = !showSide.value
+};
 
 const duskDawn = () => {
     setSetting('lt', !lt.value);
@@ -245,4 +241,4 @@ const updateCompletion = async(bop, player, completed=false)=>fetch('/api/valcom
 // bid,turn,player
 // ["${uname}","${await proof}",${bid},${turn},${claim}, ${type}<, ${unameSel}>]
 
-export {makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveFileRemote, createBoP, reloadData, createUser, resetPwd, openPeopleEditor, closePeopleEditor, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, saveNewBoPData, loadSettings, updateCompletion, setSetting};
+export {makeLoad, unLoad, boppise, fileget, getPlayers, getAllBoppers, players, saveFileLocal, saveFileRemote, createBoP, reloadData, createUser, resetPwd, openPeopleEditor, closePeopleEditor, pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, saveNewBoPData, updateCompletion, setSetting};

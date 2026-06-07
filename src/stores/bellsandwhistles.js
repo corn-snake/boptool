@@ -1,7 +1,9 @@
 import { reactive } from "vue";
 import { ref } from "vue";
 
-const lt = ref(true);
+const initSettings = JSON.parse(localStorage.getItem("settings") || "{}");
+
+const lt = ref(initSettings.lt ?? true);
 
 const load = ref(true),
     finishedFirstFetch = ref(false),
@@ -15,8 +17,8 @@ const pwdDialog = ref(false),
     editingPeople = ref(false);
 
 const overrides = ref(document.getElementById("app").offsetWidth < 601),
-    showSide = ref(document.getElementById("app").offsetWidth > 501);
+    showSide = ref(initSettings.showSide ?? document.getElementById("app").offsetWidth > 501);
 
-const settings = reactive({});
+const settings = reactive(initSettings);
 
 export { load, loadingData, saveLock, remoteSaveLock, playerGetLock, pwdDialog, editingPeople, lt, overrides, showSide, finishedFirstFetch, settings };

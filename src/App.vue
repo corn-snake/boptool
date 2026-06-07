@@ -3,25 +3,17 @@
 	import Heady from "./components/layout/Heady.vue";
 	import { onMounted, onUnmounted } from "vue";
 	import { pwdDialog, lt, overrides, showSide } from "./stores/bellsandwhistles.js";
-	import { pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide, loadSettings } from "./lib/runtimeActs.js";
+	import { pwdDialogClose, pwdDialogOpen, showUnshow, duskDawn, pureHide } from "./lib/runtimeActs.js";
     import ChangePassword from "./components/atoms/ChangePassword.vue";
     import RequestNewPassword from "./components/atoms/RequestNewPassword.vue";
     import { isAuth } from "./stores/authStore.js";
-	if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-		lt.value = false;
-	}
 
 	const winChange = ()=>{
 	    overrides.value = document.getElementById("app").offsetWidth < 601;
 		showSide.value = document.getElementById("app").offsetWidth > 501;
-	};
-	onMounted(() => {
-        window.addEventListener('resize', winChange);
-        loadSettings().then(v => {
-            if (v.lt) lt.value = v.lt;
-            if (v.showSide) showSide.value = v.showSide;
-        });
-    });
+    };
+
+	onMounted(() => window.addEventListener('resize', winChange));
 	onUnmounted(()=>window.removeEventListener('resize', winChange));
 </script>
 
@@ -43,7 +35,7 @@
 		]"
 		@click="pureHide"
 	>
-		<Heady @hideShow="showUnshow" :small="showSide" />
+		<Heady @hideShow="showUnshow" />
 		<router-view></router-view>
 	</main>
 	<dialog id="pwdReset" :open="pwdDialog">
@@ -63,6 +55,7 @@
 	:root {
 		font-family: Avenir, Helvetica, Arial, sans-serif;
 		--magicmissile: calc(0.875rem + 22px + 1.44 * 20px);
+		--titlecolor: #57300a;
 		--linkcolor: #815127;
 		--editcolor: #E8DECD;
 		--trcolor: color 0.2s ease-in;
@@ -75,6 +68,7 @@
 		--vs-open-indicator-color: #ccc;
 		--editcolor: #ABB1B5;
 		--linkcolor: #AECCE4;
+		--titlecolor: #A8CFF5;
 	}
 	html {
 		font-size: 16px;
